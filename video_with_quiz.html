@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video with Quiz</title>
+    <style>
+        /* Basic CSS to control the flow of elements - to be amended later */
+        #quiz-container { display: none; margin-top: 20px; }
+        #quiz-container > div { padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <video id="myVideo" width="640" height="360" controls>
+        <source src="PS203/PS203 Week 1.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <div id="quiz-container">
+        <div id="quiz-1">
+            <p>Question 1: What is the capital of France?</p>
+            <input type="radio" name="q1" value="a">A) Berlin <br>
+            <input type="radio" name="q1" value="b">B) Paris <br>
+            <input type="radio" name="q1" value="c">C) London <br>
+            <button onclick="checkAnswer(1, 'b')">Submit Answer</button>
+        </div>
+    <div id="quiz-2" style="display:none">
+            <p>Question 2: What is the largest planet in our solar system?</p>
+            <input type="radio" name="q2" value="a">A) Earth <br>
+            <input type="radio" name="q2" value="b">B) Jupiter <br>
+            <input type="radio" name="q2" value="c">C) Saturn <br>
+            <button onclick="checkAnswer(2, 'b')">Submit Answer</button>
+        </div>
+        </div>
+      <div id="results-container"></div>
+     <button id = "downloadResults" style="display:none">Download Results</button>
+
+    <script>
+        //Video Controls
+        const video = document.getElementById('myVideo');
+        let studentID = prompt("Please enter your student ID")
+        let quizResults = []; // Array to store quiz results
+         let videoPaused = false;
+        let shownQuizzes = [];
+        const quizSchedule = [
+            {time: 10, quizId: 1},
+            {time: 30, quizId: 2}
+        ];
+
+        //Quiz Logic
+        function checkAnswer(quizNumber, correctAnswer) {
+                const selectedOption = document.querySelector(`input[name="q${quizNumber}"]:checked`);
+                    if (selectedOption && selectedOption.value === correctAnswer) {
+                    quizResults.push({quiz: quizNumber, studentID: studentID, result: "correct"});
+                    document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
+                     document.getElementById('quiz-container').style.display = 'none';
+                       videoPaused = false;
+                       video.play();
+                    }
+                     else if (selectedOption) {
+                        quizResults.push({quiz: quizNumber, studentID: studentID, result: "incorrect"});
+                          document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
+                           document.getElementById('quiz-container').style.display = 'none';
+                        videoPaused = false;
+                         video.play();
+                    }
+                    else {
+                        alert("Please select an option.")
+                }
+        }
+        // Results Logic
+         const downloadButton = document.getElementById('downloadResults');
+         downloadButton.addEventListener('click', downloadResults);
+
+         function downloadResults () {
+           const resultsString = JSON.stringify(quizResults, null, 2); // pretty stringify for readability
+           const blob = new Blob([resultsString], {type: 'text/plain'});
+            const url = URL.createObjectURL(blob);
+             const a = document.createElement('a');
+            a.href = url;
+            a.download = 'quiz_results.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+         }
+        video.addEventListener('play', function() {
+            if (videoPaused) {
+               video.pause()
+            }
+        });
+        // Video event listener
+       video.addEventListener('timeupdate', function() {
+            for (const [index, quiz] of quizSchedule.entries()) {
+                if (video.currentTime >= quiz.time && !shownQuizzes.includes(index)) {
+                   document.getElementById('quiz-container').style.display = 'block';
+                   document.getElementById(`quiz-${quiz.quizId}`).style.display = 'block';
+                    video.pause(); // Pause video
+                     videoPaused = true;
+                   shownQuizzes.push(index);
+                   return;
+                }
+           }
+            if(video.currentTime >= 60) { // results at 60s
+                 downloadButton.style.display='block'
+            }
+        });
+    </script>
+</body>
+</html>
