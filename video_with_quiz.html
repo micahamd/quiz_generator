@@ -39,11 +39,13 @@
          let videoPaused = false;
         let shownQuizzes = [];
         let submittedQuizzes = [];
+        
         const quizSchedule = [
             {time: 10, quizId: 1},
-            {time: 30, quizId: 2}
+            {time: 60, quizId: 2} // Quiz 2 at 60 seconds
         ];
-         const quizzes = {
+
+        const quizzes = {
               1: {
                 questions: [
                 {
@@ -64,7 +66,18 @@
                   submitted : false
           },
           2: {
-                questions: [],
+                questions: [
+                    {
+                        question: "Question 1: What is the largest planet in our solar system?",
+                        options: ["Earth", "Jupiter", "Saturn"],
+                        correctAnswer: "b"
+                    },
+                     {
+                        question: "Question 2: What is the speed of light in vacuum?",
+                       options: ["300,000 km/s", "150,000 km/s", "500,000 km/s"],
+                        correctAnswer: "a"
+                    }
+                ],
               currentQuestion: 0,
                 rendered : false,
                 containerRendered: false,
@@ -100,35 +113,32 @@
              quizzes[quizId].rendered = true; //mark as rendered
          }
         //Quiz Logic
-       function checkAnswer(quizNumber) {
-           let allQuestionsAnswered = true;
-               for (let i = 0; i < quizzes[quizNumber].questions.length; i++){
-                    const selectedOption = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
-                     if (!selectedOption) {
-                       allQuestionsAnswered = false;
-                       break;
-                     }
-                    if(selectedOption.value === quizzes[quizNumber].questions[i].correctAnswer) {
-                      quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "correct"});
-                    } else {
-                       quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
-                    }
-                 }
-                    if(allQuestionsAnswered) {
-                           quizzes[quizNumber].submitted = true;
-                         document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none';
-                         document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
-                         let allSubmitted = quizSchedule.every(quiz => quizzes[quiz.quizId].submitted);
-                          if (allSubmitted) {
-                              document.getElementById('quiz-container').style.display = 'none';
-                            videoPaused = false;
-                            video.play();
-                          }
-                      quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
-                       }
-                   else {
-                        alert("Please answer all questions")
-                       }
+        function checkAnswer(quizNumber) {
+            let allQuestionsAnswered = true;
+            for (let i = 0; i < quizzes[quizNumber].questions.length; i++) {
+                const selectedOption = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
+                if (!selectedOption) {
+                    allQuestionsAnswered = false;
+                    break;
+                }
+                if (selectedOption.value === quizzes[quizNumber].questions[i].correctAnswer) {
+                    quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
+                } else {
+                    quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "incorrect" });
+                }
+            }
+            if (allQuestionsAnswered) {
+                quizzes[quizNumber].submitted = true;
+                document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none';
+                document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
+                document.getElementById('quiz-container').style.display = 'none'; // Hide quiz container after each submission
+                videoPaused = false; // Reset the flag
+                video.play(); // resume playback after the quiz has been submitted
+                quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
+            }
+            else {
+                alert("Please answer all questions");
+            }
         }
         // Results Logic
          const downloadButton = document.getElementById('downloadResults');
@@ -147,7 +157,7 @@
             URL.revokeObjectURL(url);
          }
         video.addEventListener('play', function() {
-            if (videoPaused) {
+            if (videoPaused == true) {
                video.pause()
             }
         });
