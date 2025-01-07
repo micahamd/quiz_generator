@@ -28,7 +28,7 @@
         </div>
     </div>
       <div id="results-container"></div>
-     <button id = "downloadResults" style="display:none">Download Results</button>
+      <button id = "submitResults" style="display:none">Submit Final Results</button>
 
      <script>
       //Video Controls
@@ -205,15 +205,11 @@
               alert("Please answer all questions");
           }
       }
-
-      // Results Logic
-      const downloadButton = document.getElementById('downloadResults');
-      downloadButton.addEventListener('click', downloadResults);
-
-      function downloadResults () {
-          const resultsString = JSON.stringify(quizResults, null, 2); // pretty stringify for readability
-          const blob = new Blob([resultsString], {type: 'text/plain'});
-          const url = URL.createObjectURL(blob);
+      
+      function saveResults() {
+     const resultsString = JSON.stringify(quizResults, null, 2);
+    const blob = new Blob([resultsString], {type: 'text/plain'});
+     const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
           a.download = 'quiz_results.txt';
@@ -221,7 +217,14 @@
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-      }
+        alert("Results submitted!");
+    }
+
+// Modify the event listener for submitResults
+const submitButton = document.getElementById('submitResults');
+submitButton.addEventListener('click', saveResults);
+
+
       video.addEventListener('play', function() {
           if (videoPaused == true) {
               video.pause()
@@ -240,8 +243,17 @@
                  return;
               }
           }
-           if(video.currentTime >= 60) { // results at 60s
-               downloadButton.style.display='block'
+           if(video.currentTime >= 180) { // results at 180s
+                let allSubmitted = true;
+                 for (const [index, quiz] of quizSchedule.entries()) {
+                      if(!quizzes[quiz.quizId].submitted){
+                          allSubmitted = false;
+                          break;
+                      }
+                 }
+                 if (allSubmitted) {
+                   submitButton.style.display='block'
+                  }
           }
       });
   </script>
