@@ -31,18 +31,19 @@
       <div id="results-container"></div>
      <button id = "downloadResults" style="display:none">Download Results</button>
 
-    <script>
+     <script>
         //Video Controls
         const video = document.getElementById('myVideo');
         let studentID = prompt("Please enter your student ID")
         let quizResults = []; // Array to store quiz results
          let videoPaused = false;
         let shownQuizzes = [];
+        let submittedQuizzes = [];
         const quizSchedule = [
             {time: 10, quizId: 1},
             {time: 30, quizId: 2}
         ];
-        const quizzes = {
+         const quizzes = {
               1: {
                 questions: [
                 {
@@ -57,14 +58,27 @@
                   }
               ],
                   currentQuestion: 0,
-                  answeredQuestions: 0
+                  answeredQuestions: 0,
+                   rendered : false,
+                   containerRendered : false,
+                  submitted : false
           },
           2: {
                 questions: [],
-              currentQuestion: 0
+              currentQuestion: 0,
+                rendered : false,
+                containerRendered: false,
+                submitted: false
           }
           };
-          function renderQuiz(quizId) {
+         function renderQuizContainer(quizId) {
+           if(quizzes[quizId].containerRendered) return; //check if container has been rendered
+             document.getElementById('quiz-container').style.display = 'block';
+               quizzes[quizId].containerRendered = true
+        }
+
+         function renderQuiz(quizId) {
+             if(quizzes[quizId].rendered) return;
            const quizDiv = document.getElementById(`quiz-${quizId}`);
            quizDiv.innerHTML = '';
              for(let i = 0; i < quizzes[quizId].questions.length; i++){
@@ -79,36 +93,42 @@
             }
             // Create only ONE submit button outside the loop
              const submitButton = document.createElement('button')
-             submitButton.textContent = 'Submit Answers'
+             submitButton.textContent = `Submit Quiz ${quizId}`
               submitButton.onclick = function() {checkAnswer(quizId)};
+             submitButton.id = `submit-quiz-${quizId}`
              quizDiv.appendChild(submitButton)
+             quizzes[quizId].rendered = true; //mark as rendered
          }
         //Quiz Logic
-        function checkAnswer(quizNumber) {
-            let allQuestionsAnswered = true;
-             for (let i = 0; i < quizzes[quizNumber].questions.length; i++){
-                  const selectedOption = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
-                   if (!selectedOption) {
-                     allQuestionsAnswered = false;
-                     break;
-                   }
-                  if(selectedOption.value === quizzes[quizNumber].questions[i].correctAnswer) {
-                    quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "correct"});
-                  } else {
-                     quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
-                  }
-               }
-                if(allQuestionsAnswered) {
-                   document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
-                    document.getElementById('quiz-container').style.display = 'none';
-                    videoPaused = false;
-                    video.play();
-                  quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
-
-                   }
-                else {
-                  alert("Please answer all questions")
+       function checkAnswer(quizNumber) {
+           let allQuestionsAnswered = true;
+               for (let i = 0; i < quizzes[quizNumber].questions.length; i++){
+                    const selectedOption = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
+                     if (!selectedOption) {
+                       allQuestionsAnswered = false;
+                       break;
+                     }
+                    if(selectedOption.value === quizzes[quizNumber].questions[i].correctAnswer) {
+                      quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "correct"});
+                    } else {
+                       quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
+                    }
                  }
+                    if(allQuestionsAnswered) {
+                           quizzes[quizNumber].submitted = true;
+                         document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none';
+                         document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
+                         let allSubmitted = quizSchedule.every(quiz => quizzes[quiz.quizId].submitted);
+                          if (allSubmitted) {
+                              document.getElementById('quiz-container').style.display = 'none';
+                            videoPaused = false;
+                            video.play();
+                          }
+                      quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
+                       }
+                   else {
+                        alert("Please answer all questions")
+                       }
         }
         // Results Logic
          const downloadButton = document.getElementById('downloadResults');
@@ -134,16 +154,17 @@
         // Video event listener
        video.addEventListener('timeupdate', function() {
             for (const [index, quiz] of quizSchedule.entries()) {
-                if (video.currentTime >= quiz.time && !shownQuizzes.includes(index)) {
-                   document.getElementById('quiz-container').style.display = 'block';
-                    renderQuiz(quiz.quizId);
-                   document.getElementById(`quiz-${quiz.quizId}`).style.display = 'block';
-                    video.pause(); // Pause video
-                     videoPaused = true;
-                   shownQuizzes.push(index);
+                if (video.currentTime >= quiz.time && !shownQuizzes.includes(quiz.quizId) ) {
+                    const quizId = quiz.quizId
+                   renderQuizContainer(quizId)
+                   renderQuiz(quizId);
+                  document.getElementById(`quiz-${quizId}`).style.display = 'block';
+                   video.pause(); // Pause video
+                    videoPaused = true;
+                   shownQuizzes.push(quizId);
                    return;
                 }
-           }
+            }
             if(video.currentTime >= 60) { // results at 60s
                  downloadButton.style.display='block'
             }
