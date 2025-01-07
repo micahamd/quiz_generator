@@ -24,92 +24,111 @@
         </div>
         <div id = "quiz-3" style="display:none">
         </div>
+        <div id = "quiz-4" style="display:none">
+        </div>
     </div>
       <div id="results-container"></div>
      <button id = "downloadResults" style="display:none">Download Results</button>
 
      <script>
-        //Video Controls
-        const video = document.getElementById('myVideo');
-        let studentID = prompt("Please enter your student ID")
-        let quizResults = []; // Array to store quiz results
-        let videoPaused = false;
-         
-        const quizSchedule = [
-            {time: 10, quizId: 1},
-            {time: 60, quizId: 2}, // Quiz 2 at 60 seconds
-            {time: 120, quizId: 3} //Quiz 3 at 120 seconds
-        ];
+      //Video Controls
+      const video = document.getElementById('myVideo');
+      let studentID = prompt("Please enter your student ID")
+      let quizResults = []; // Array to store quiz results
+      let videoPaused = false;
+       
+      const quizSchedule = [
+          {time: 10, quizId: 1},
+          {time: 60, quizId: 2}, // Quiz 2 at 60 seconds
+          {time: 120, quizId: 3}, //Quiz 3 at 120 seconds
+          {time: 180, quizId: 4} //Quiz 4 at 180 seconds
+      ];
 
-        const quizzes = {
-            1: {
-                questions: [
-                    {
-                        question: "Question 1: What is the capital of France?",
-                        options: ["Berlin", "Paris", "London"],
-                        correctAnswer: "b"
-                    },
-                    {
-                        question: "Question 2: What is the chemical symbol for water?",
-                        options: ["H2O", "CO2", "NaCl"],
-                        correctAnswer: "a"
-                    }
-                ],
-                currentQuestion: 0,
-                answeredQuestions: 0,
-                rendered : false,
-                containerRendered : false,
-                submitted : false
-            },
-            2: {
-                questions: [
-                    {
-                        question: "Question 1: What is the largest planet in our solar system?",
-                        options: ["Earth", "Jupiter", "Saturn"],
-                        correctAnswer: "b"
-                    },
-                    {
-                        question: "Question 2: What is the speed of light in vacuum?",
-                        options: ["300,000 km/s", "150,000 km/s", "500,000 km/s"],
-                        correctAnswer: "a"
-                    }
-                ],
-                currentQuestion: 0,
-                rendered : false,
-                containerRendered: false,
-                submitted: false
-            },
-            3: {
-                questions: [
-                    {
-                        question: "The Earth is flat.",
-                        type: "trueFalse",
-                        correctAnswer: "false"
-                    },
-                    {
-                        question: "Water boils at 100 degrees Celsius at sea level",
-                        type: "trueFalse",
-                        correctAnswer: "true"
-                    }
-                ],
-                currentQuestion: 0,
-                rendered: false,
-                containerRendered: false,
-                submitted: false
-            }
-        };
+     const quizzes = {
+          1: {
+              questions: [
+                  {
+                      question: "Question 1: What is the capital of France?",
+                      options: ["Berlin", "Paris", "London"],
+                      correctAnswer: "b"
+                  },
+                  {
+                      question: "Question 2: What is the chemical symbol for water?",
+                      options: ["H2O", "CO2", "NaCl"],
+                      correctAnswer: "a"
+                  }
+              ],
+              currentQuestion: 0,
+              answeredQuestions: 0,
+              rendered : false,
+              containerRendered : false,
+              submitted : false
+          },
+          2: {
+              questions: [
+                  {
+                      question: "Question 1: What is the largest planet in our solar system?",
+                      options: ["Earth", "Jupiter", "Saturn"],
+                      correctAnswer: "b"
+                  },
+                  {
+                      question: "Question 2: What is the speed of light in vacuum?",
+                      options: ["300,000 km/s", "150,000 km/s", "500,000 km/s"],
+                      correctAnswer: "a"
+                  }
+              ],
+              currentQuestion: 0,
+              rendered : false,
+              containerRendered: false,
+              submitted: false
+          },
+          3: {
+              questions: [
+                  {
+                      question: "The Earth is flat.",
+                      type: "trueFalse",
+                      correctAnswer: "false"
+                  },
+                  {
+                      question: "Water boils at 100 degrees Celsius at sea level",
+                      type: "trueFalse",
+                      correctAnswer: "true"
+                  }
+              ],
+              currentQuestion: 0,
+              rendered: false,
+              containerRendered: false,
+              submitted: false
+          },
+          4: {
+              questions: [
+                  {
+                      question: "Question 1: What is the name of the university you are studying at?",
+                      type: "shortAnswer",
+                  },
+                   {
+                      question: "Question 2: What is the name of this module?",
+                      type: "shortAnswer",
+                  }
+              ],
+              currentQuestion: 0,
+              rendered: false,
+              containerRendered: false,
+              submitted: false
+          }
+      };
+      
+      function renderQuizContainer(quizId) {
+          if(quizzes[quizId].containerRendered) return; //check if container has been rendered
+          document.getElementById('quiz-container').style.display = 'block';
+          quizzes[quizId].containerRendered = true
+      }
 
-        function renderQuizContainer(quizId) {
-            if(quizzes[quizId].containerRendered) return; //check if container has been rendered
-            document.getElementById('quiz-container').style.display = 'block';
-            quizzes[quizId].containerRendered = true
-        }
-
-        function renderQuiz(quizId) {
-            if(quizzes[quizId].rendered) return;
-            const quizDiv = document.getElementById(`quiz-${quizId}`);
-            quizDiv.innerHTML = '';
-            for(let i = 0; i < quizzes[quizId].questions.length; i++){
+      function renderQuiz(quizId) {
+          if(quizzes[quizId].rendered) return;
+          const quizDiv = document.getElementById(`quiz-${quizId}`);
+          quizDiv.innerHTML = '';
+          for(let i = 0; i < quizzes[quizId].questions.length; i++){
                 const question = quizzes[quizId].questions[i];
                 const questionDiv = document.createElement('div')
                 questionDiv.classList.add('quiz-question')
@@ -117,105 +136,114 @@
                 if(question.type === 'trueFalse'){
                     questionDiv.innerHTML += `<input type="radio" name="q${quizId}-q${i}" value="true"> True<br>`;
                     questionDiv.innerHTML += `<input type="radio" name="q${quizId}-q${i}" value="false"> False<br>`;
+                } else if (question.type === 'shortAnswer') {
+                    questionDiv.innerHTML += `<input type="text" name="q${quizId}-q${i}" placeholder="Your answer">`;
                 }
                 else{
                     for (let j = 0; j < question.options.length; j++){
                         questionDiv.innerHTML += `<input type="radio" name="q${quizId}-q${i}" value="${String.fromCharCode(97 + j)}"> ${String.fromCharCode(65 + j)}) ${question.options[j]}<br>`;
                     }
                 }
-                quizDiv.appendChild(questionDiv)
-            }
-            // Create only ONE submit button outside the loop
-            const submitButton = document.createElement('button')
-            submitButton.textContent = `Submit Quiz ${quizId}`
-            submitButton.onclick = function() {checkAnswer(quizId)};
-            submitButton.id = `submit-quiz-${quizId}`
-            quizDiv.appendChild(submitButton)
-            quizzes[quizId].rendered = true; //mark as rendered
-        }
-        //Quiz Logic
-        function checkAnswer(quizNumber) {
-            let allQuestionsAnswered = true;
-            for (let i = 0; i < quizzes[quizNumber].questions.length; i++) {
-                const question = quizzes[quizNumber].questions[i];
-                let selectedValue;
-                if(question.type === 'trueFalse'){
-                    selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
-                }
-                else {
-                    selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
-                }
-                if (!selectedValue) {
-                    allQuestionsAnswered = false;
-                    break;
-                }
-                if (question.type === 'trueFalse') {
-                    if(selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) {
-                        quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
+              quizDiv.appendChild(questionDiv)
+          }
+          // Create only ONE submit button outside the loop
+          const submitButton = document.createElement('button')
+          submitButton.textContent = `Submit Quiz ${quizId}`
+          submitButton.onclick = function() {checkAnswer(quizId)};
+          submitButton.id = `submit-quiz-${quizId}`
+          quizDiv.appendChild(submitButton)
+          quizzes[quizId].rendered = true; //mark as rendered
+      }
+      
+      //Quiz Logic
+      function checkAnswer(quizNumber) {
+          let allQuestionsAnswered = true;
+          for (let i = 0; i < quizzes[quizNumber].questions.length; i++) {
+              const question = quizzes[quizNumber].questions[i];
+              let selectedValue;
+               if (question.type === 'shortAnswer') {
+                  selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]`).value;
+                   if (!selectedValue){
+                      allQuestionsAnswered = false;
+                      break;
                     }
-                    else {
-                        quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
-                    }
-                }
-                else { // MCQ
-                    if (selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) {
-                        quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
-                    }
-                    else {
-                        quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
-                    }
-                }
-            }
-            if (allQuestionsAnswered) {
-                quizzes[quizNumber].submitted = true;
-                document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none';
-                document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
-                videoPaused = false; // Reset the flag
-                video.play(); // resume playback after the quiz has been submitted
-                quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
-            }
-            else {
-                alert("Please answer all questions");
-            }
-        }
-        // Results Logic
-        const downloadButton = document.getElementById('downloadResults');
-        downloadButton.addEventListener('click', downloadResults);
+                      quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: selectedValue}); // store the value as the result
+              }
+              else {
+                 selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
+                   if (!selectedValue) {
+                      allQuestionsAnswered = false;
+                      break;
+                     }
+                 if (question.type === 'trueFalse') {
+                      if(selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) {
+                          quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
+                      }
+                      else {
+                          quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
+                      }
+                  }
+                  else { // MCQ
+                     if (selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) {
+                      quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
+                      }
+                      else {
+                       quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
+                      }
+                 }
+              }
+          }
+          if (allQuestionsAnswered) {
+              quizzes[quizNumber].submitted = true;
+              document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none';
+              document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
+              videoPaused = false; // Reset the flag
+              video.play(); // resume playback after the quiz has been submitted
+              quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
+          }
+          else {
+              alert("Please answer all questions");
+          }
+      }
 
-        function downloadResults () {
-            const resultsString = JSON.stringify(quizResults, null, 2); // pretty stringify for readability
-            const blob = new Blob([resultsString], {type: 'text/plain'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'quiz_results.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-        video.addEventListener('play', function() {
-            if (videoPaused == true) {
-                video.pause()
-            }
-        });
-        // Video event listener
-        video.addEventListener('timeupdate', function() {
-           for (const [index, quiz] of quizSchedule.entries()) {
-                if (video.currentTime >= quiz.time && !quizzes[quiz.quizId].submitted) {
-                    const quizId = quiz.quizId
-                   renderQuizContainer(quizId)
-                   renderQuiz(quizId);
-                  document.getElementById(`quiz-${quizId}`).style.display = 'block';
-                   video.pause(); // Pause video
-                    videoPaused = true;
-                   return;
-                }
-            }
-             if(video.currentTime >= 60) { // results at 60s
-                 downloadButton.style.display='block'
-            }
-        });
-    </script>
+      // Results Logic
+      const downloadButton = document.getElementById('downloadResults');
+      downloadButton.addEventListener('click', downloadResults);
+
+      function downloadResults () {
+          const resultsString = JSON.stringify(quizResults, null, 2); // pretty stringify for readability
+          const blob = new Blob([resultsString], {type: 'text/plain'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'quiz_results.txt';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+      }
+      video.addEventListener('play', function() {
+          if (videoPaused == true) {
+              video.pause()
+          }
+      });
+      // Video event listener
+      video.addEventListener('timeupdate', function() {
+         for (const [index, quiz] of quizSchedule.entries()) {
+              if (video.currentTime >= quiz.time && !quizzes[quiz.quizId].submitted) {
+                  const quizId = quiz.quizId
+                 renderQuizContainer(quizId)
+                 renderQuiz(quizId);
+                document.getElementById(`quiz-${quizId}`).style.display = 'block';
+                 video.pause(); // Pause video
+                  videoPaused = true;
+                 return;
+              }
+          }
+           if(video.currentTime >= 60) { // results at 60s
+               downloadButton.style.display='block'
+          }
+      });
+  </script>
 </body>
 </html>
