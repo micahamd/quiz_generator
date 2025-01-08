@@ -6,37 +6,47 @@
     <title>Video with Quiz</title>
     <style>
         /* Basic CSS to control the flow of elements - to be amended later */
-        #quiz-container { display: none; margin-top: 20px; }
-        .quiz-question { padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; }
+        #quiz-container { 
+            display: none; /* Initially hide the quiz container */
+            margin-top: 20px; /* Add some space above the quiz container */
+        }
+        .quiz-question {
+            padding: 10px; /* Add padding inside each question container */
+            border: 1px solid #ccc; /* Add a border around each question */
+            margin-bottom: 10px; /* Add some space below each question */
+        }
     </style>
 </head>
 <body>
-
+    
+    <!-- Video Element -->
     <video id="myVideo" width="640" height="360" controls>
         <source src="PS203/PS203 Week 1.mp4" type="video/mp4">
+        <!-- Fallback message if the browser doesn't support the video tag -->
         Your browser does not support the video tag.
     </video>
 
+    <!-- Quiz Container -->
     <div id="quiz-container">
-        <div id="quiz-1">
-        </div>
-        <div id="quiz-2" style="display:none">
-        </div>
-        <div id = "quiz-3" style="display:none">
-        </div>
-        <div id = "quiz-4" style="display:none">
-        </div>
+         <!-- Individual quiz containers for each quiz, which are initially hidden -->
+        <div id="quiz-1"></div>
+        <div id="quiz-2" style="display:none"></div>
+        <div id = "quiz-3" style="display:none"></div>
+        <div id = "quiz-4" style="display:none"></div>
     </div>
-      <div id="results-container"></div>
-      <button id = "submitResults" style="display:none">Submit Final Results</button>
+     <!-- Results Container and Submit Button-->
+    <div id="results-container"></div>
+    <!-- Submit button, initially hidden -->
+    <button id = "submitResults" style="display:none">Submit Final Results</button>
 
-     <script>
+    <script>
       //Video Controls
-      const video = document.getElementById('myVideo');
-      let studentID = prompt("Please enter your student ID")
+      const video = document.getElementById('myVideo'); // Get the video element
+      let studentID = prompt("Please enter your student ID") // Prompt the user for their student ID
       let quizResults = []; // Array to store quiz results
-      let videoPaused = false;
+      let videoPaused = false; // Flag to track whether the video is paused due to a quiz
        
+      // Quiz schedule, each object contains the time at which the quiz is to be displayed, and the ID of the quiz
       const quizSchedule = [
           {time: 10, quizId: 1},
           {time: 60, quizId: 2}, // Quiz 2 at 60 seconds
@@ -44,6 +54,7 @@
           {time: 180, quizId: 4} //Quiz 4 at 180 seconds
       ];
 
+    // Object containing all the quizzes, including their corresponding questions
      const quizzes = {
           1: {
               questions: [
@@ -58,11 +69,11 @@
                       correctAnswer: "a"
                   }
               ],
-              currentQuestion: 0,
-              answeredQuestions: 0,
-              rendered : false,
-              containerRendered : false,
-              submitted : false
+              currentQuestion: 0, // index of current question
+              answeredQuestions: 0, // number of questions which have been answered
+              rendered : false, // flag if quiz has been rendered
+              containerRendered : false, //flag if quiz container has been rendered
+              submitted : false // flag if quiz has been submitted
           },
           2: {
               questions: [
@@ -118,140 +129,149 @@
           }
       };
       
+      // function to display the quiz container
       function renderQuizContainer(quizId) {
           if(quizzes[quizId].containerRendered) return; //check if container has been rendered
-          document.getElementById('quiz-container').style.display = 'block';
-          quizzes[quizId].containerRendered = true
+          document.getElementById('quiz-container').style.display = 'block'; // show quiz container
+          quizzes[quizId].containerRendered = true // mark container as rendered
       }
-
+      // function to render the quiz questions to the DOM
       function renderQuiz(quizId) {
-          if(quizzes[quizId].rendered) return;
-          const quizDiv = document.getElementById(`quiz-${quizId}`);
-          quizDiv.innerHTML = '';
+          if(quizzes[quizId].rendered) return; //check if quiz has been rendered
+          const quizDiv = document.getElementById(`quiz-${quizId}`); //get the div corresponding to the quiz ID
+          quizDiv.innerHTML = ''; //clear div before adding new elements
+          // for each question in the quiz
           for(let i = 0; i < quizzes[quizId].questions.length; i++){
-                const question = quizzes[quizId].questions[i];
-                const questionDiv = document.createElement('div')
-                questionDiv.classList.add('quiz-question')
-                questionDiv.innerHTML = `<p>${question.question}</p>`;
+                const question = quizzes[quizId].questions[i]; //get question object
+                const questionDiv = document.createElement('div') // create div for questions
+                questionDiv.classList.add('quiz-question') //add class for styling
+                questionDiv.innerHTML = `<p>${question.question}</p>`; // add the question
+                //check question type and render based on type
                 if(question.type === 'trueFalse'){
                     questionDiv.innerHTML += `<input type="radio" name="q${quizId}-q${i}" value="true"> True<br>`;
                     questionDiv.innerHTML += `<input type="radio" name="q${quizId}-q${i}" value="false"> False<br>`;
                 } else if (question.type === 'shortAnswer') {
                     questionDiv.innerHTML += `<input type="text" name="q${quizId}-q${i}" placeholder="Your answer">`;
                 }
-                else{
+                else{ // multiple choice
                     for (let j = 0; j < question.options.length; j++){
                         questionDiv.innerHTML += `<input type="radio" name="q${quizId}-q${i}" value="${String.fromCharCode(97 + j)}"> ${String.fromCharCode(65 + j)}) ${question.options[j]}<br>`;
                     }
                 }
-              quizDiv.appendChild(questionDiv)
+              quizDiv.appendChild(questionDiv) // add to DOM
           }
-          // Create only ONE submit button outside the loop
+          // Create only ONE submit button outside the loop, after the questions have been added.
           const submitButton = document.createElement('button')
-          submitButton.textContent = `Submit Quiz ${quizId}`
-          submitButton.onclick = function() {checkAnswer(quizId)};
-          submitButton.id = `submit-quiz-${quizId}`
-          quizDiv.appendChild(submitButton)
+          submitButton.textContent = `Submit Quiz ${quizId}` // add text to the button
+          submitButton.onclick = function() {checkAnswer(quizId)}; // call checkAnswer function on click
+          submitButton.id = `submit-quiz-${quizId}` // set unique ID
+          quizDiv.appendChild(submitButton) // add submit button
           quizzes[quizId].rendered = true; //mark as rendered
       }
       
       //Quiz Logic
       function checkAnswer(quizNumber) {
-          let allQuestionsAnswered = true;
+          let allQuestionsAnswered = true; // initially assume all questions have been answered
           for (let i = 0; i < quizzes[quizNumber].questions.length; i++) {
-              const question = quizzes[quizNumber].questions[i];
+              const question = quizzes[quizNumber].questions[i]; //get question object
               let selectedValue;
+              // handle answer submission based on the question type
                if (question.type === 'shortAnswer') {
-                  selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]`).value;
-                   if (!selectedValue){
-                      allQuestionsAnswered = false;
-                      break;
+                  selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]`).value; // get the value of the submitted text
+                   if (!selectedValue){ // if no value is entered
+                      allQuestionsAnswered = false; // then not all questions answered
+                      break; // break the loop
                     }
                       quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: selectedValue}); // store the value as the result
               }
               else {
-                 selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`);
-                   if (!selectedValue) {
-                      allQuestionsAnswered = false;
-                      break;
+                 selectedValue = document.querySelector(`input[name="q${quizNumber}-q${i}"]:checked`); //check if radio button has been selected
+                   if (!selectedValue) { // if no value is selected
+                      allQuestionsAnswered = false; // then not all questions answered
+                      break; // break loop
                      }
-                 if (question.type === 'trueFalse') {
-                      if(selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) {
-                          quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
+                 if (question.type === 'trueFalse') { //true/false handling
+                      if(selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) { // if the selected value is equal to the correct answer
+                          quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" }); // store correct result
                       }
-                      else {
-                          quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
+                      else { // incorrect answer
+                          quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"}); // store incorrect result
                       }
                   }
-                  else { // MCQ
-                     if (selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) {
-                      quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" });
+                  else { // MCQ handling
+                     if (selectedValue.value === quizzes[quizNumber].questions[i].correctAnswer) { // if selected value is equal to the correct answer
+                      quizResults.push({ quiz: quizNumber, studentID: studentID, question: i, result: "correct" }); //store correct result
                       }
-                      else {
-                       quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"});
+                      else { //incorrect answer
+                       quizResults.push({quiz: quizNumber, studentID: studentID, question: i, result: "incorrect"}); //store incorrect result
                       }
                  }
               }
           }
-          if (allQuestionsAnswered) {
-              quizzes[quizNumber].submitted = true;
-              document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none';
-              document.getElementById(`quiz-${quizNumber}`).style.display = 'none';
-              videoPaused = false; // Reset the flag
+          if (allQuestionsAnswered) { //if all questions have been answered
+              quizzes[quizNumber].submitted = true; // set quiz as submitted
+              document.getElementById(`submit-quiz-${quizNumber}`).style.display = 'none'; // hide the quiz submit button
+              document.getElementById(`quiz-${quizNumber}`).style.display = 'none'; // hide the quiz div
+              videoPaused = false; // Reset the flag, allow video to continue
               video.play(); // resume playback after the quiz has been submitted
               quizzes[quizNumber].answeredQuestions = quizzes[quizNumber].questions.length; // mark all as answered
           }
           else {
-              alert("Please answer all questions");
+              alert("Please answer all questions"); // prompt user to answer all questions
           }
       }
       
+     // function to save the results to a local file
       function saveResults() {
-     const resultsString = JSON.stringify(quizResults, null, 2);
-    const blob = new Blob([resultsString], {type: 'text/plain'});
-     const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'quiz_results.txt';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        alert("Results submitted!");
+     const resultsString = JSON.stringify(quizResults, null, 2); // stringify the results for file saving
+    const blob = new Blob([resultsString], {type: 'text/plain'}); //convert to blob
+     const url = URL.createObjectURL(blob); // create a URL object
+          const a = document.createElement('a'); //create a link
+          a.href = url; // set the URL of the link
+          a.download = 'quiz_results.txt'; // set the file name to be downloaded
+          document.body.appendChild(a); //add the link to the body
+          a.click(); //click the link
+          document.body.removeChild(a); // remove the link
+          URL.revokeObjectURL(url); // revoke the URL object
+        alert("Results submitted!"); // alert user that results have been submitted
     }
 
-// Modify the event listener for submitResults
-const submitButton = document.getElementById('submitResults');
-submitButton.addEventListener('click', saveResults);
-
-
+    // event listener for submit results button
+    const submitButton = document.getElementById('submitResults');
+    submitButton.addEventListener('click', saveResults);
+    
+    // Video event listener to pause the video when a quiz is displayed
       video.addEventListener('play', function() {
           if (videoPaused == true) {
-              video.pause()
+              video.pause() // if a quiz is displayed, then pause the video
           }
       });
-      // Video event listener
+    // Video event listener, to display quiz, and the submit button at the end
       video.addEventListener('timeupdate', function() {
+         // loop through all quizzes in the schedule
          for (const [index, quiz] of quizSchedule.entries()) {
+            // if the current time of the video exceeds the time defined for the quiz, and if the quiz has not been submitted
               if (video.currentTime >= quiz.time && !quizzes[quiz.quizId].submitted) {
-                  const quizId = quiz.quizId
-                 renderQuizContainer(quizId)
-                 renderQuiz(quizId);
-                document.getElementById(`quiz-${quizId}`).style.display = 'block';
+                  const quizId = quiz.quizId //get the quiz ID
+                 renderQuizContainer(quizId) // render quiz container
+                 renderQuiz(quizId); //render quiz questions
+                document.getElementById(`quiz-${quizId}`).style.display = 'block'; // show the quiz
                  video.pause(); // Pause video
-                  videoPaused = true;
+                  videoPaused = true; //set the video paused flag
                  return;
               }
           }
-           if(video.currentTime >= 180) { // results at 180s
+           if(video.currentTime >= 180) { // check if the video has reached the end time, and quizzes should be submitted
+               // assume that all quizzes are submitted
                 let allSubmitted = true;
+                // loop through quizzes
                  for (const [index, quiz] of quizSchedule.entries()) {
-                      if(!quizzes[quiz.quizId].submitted){
-                          allSubmitted = false;
-                          break;
+                      if(!quizzes[quiz.quizId].submitted){ // check if all quizzes have been submitted
+                          allSubmitted = false; //set flag to false if not all submitted
+                          break; //break out of loop
                       }
                  }
-                 if (allSubmitted) {
+                 if (allSubmitted) { // if all submitted, then show the submit button
                    submitButton.style.display='block'
                   }
           }
