@@ -15,6 +15,12 @@
             <label for="videoSource">Video Source (URL or path):</label>
             <input type="text" id="videoSource" required>
         </div>
+
+        <div>
+            <button type="button" id="uploadIdsBtn">Upload IDs?</button>
+            <input type="file" id="idFile" accept=".txt,.csv" style="display: none;">
+            <span id="uploadStatus"></span>
+        </div>
         
         <div>
             <label for="quizCount">Number of Quizzes:</label>

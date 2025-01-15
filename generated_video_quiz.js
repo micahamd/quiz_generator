@@ -6,7 +6,7 @@
             "description": "Auto-generated!",
             "version": "1.0.0",
             "totalQuizzes": 1,
-            "validStudentIdPattern": "^[A-Z]\\d{7}$",
+            "validStudentIds": null,
             "passingScore": 70
         },
         "quizSchedule": [{"time":10,"quizId":1,"title":"Q1","description":"first quiz"}],
@@ -20,7 +20,19 @@
       {
         "id": "1.1",
         "question": "what your name",
-        "type": "shortAnswer",
+        "type": "trueFalse",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "1.2",
+        "question": "whats your game",
+        "type": "trueFalse",
         "correctAnswer": "true",
         "points": 5,
         "options": [],
@@ -33,6 +45,7 @@
   }
 }
     };
+    
 // State management
 const state = {
     studentId: null,
@@ -56,9 +69,9 @@ const errorTemplate = document.getElementById('error-template');
 const feedbackTemplate = document.getElementById('feedback-template');
 
 // Utility Functions
-function validateStudentId(id, pattern) {
-    const regex = new RegExp(pattern);
-    return regex.test(id);
+function validateStudentId(id, validIds) {
+    if (!validIds) return true; // If no IDs loaded, accept any input
+    return validIds.includes(id);
 }
 
 function shuffleArray(array) {
@@ -102,14 +115,19 @@ async function initializeQuiz() {
     try {
         showLoading(true);
         
-        
-        // Get student ID (optional for now)
-        let studentId = prompt('Please enter your student ID (optional)');
-        if (studentId && !validateStudentId(studentId, state.quizData.metadata.validStudentIdPattern)) {
-            showError('Invalid student ID format');
-            state.studentId = null;
-        } else {
+        // Get student ID
+        let studentId = prompt('Please enter your student ID');
+        if (studentId) {
+            if (!validateStudentId(studentId, state.quizData.metadata.validStudentIds)) {
+                showError('ID not recognized');
+                video.remove(); // Remove video element to terminate quiz
+                throw new Error('Invalid student ID');
+            }
             state.studentId = studentId;
+        } else {
+            showError('Student ID is required');
+            video.remove(); // Remove video element to terminate quiz
+            throw new Error('Student ID required');
         }
         
         // Initialize event listeners
@@ -334,4 +352,5 @@ function saveResults() {
 
 // Initialize the quiz system
 document.addEventListener('DOMContentLoaded', initializeQuiz);
+
     
