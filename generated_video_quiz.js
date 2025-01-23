@@ -28,18 +28,6 @@
           "correct": "Correct!",
           "incorrect": "Incorrect."
         }
-      },
-      {
-        "id": "1.2",
-        "question": "whats your game",
-        "type": "trueFalse",
-        "correctAnswer": "true",
-        "points": 5,
-        "options": [],
-        "feedback": {
-          "correct": "Correct!",
-          "incorrect": "Incorrect."
-        }
       }
     ]
   }

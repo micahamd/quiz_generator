@@ -309,6 +309,51 @@ document.addEventListener('DOMContentLoaded', initializeQuiz);
 `;
 
 // Helper function to download generated files
+function populateFormFromJson(json) {
+    // Set basic video info
+    document.getElementById('videoSource').value = json.videoConfig.source;
+    document.getElementById('quizCount').value = json.quizSchedule.length;
+    
+    // Create quiz sections
+    document.getElementById('generateQuizFields').click();
+    
+    // Populate each quiz from quizSchedule
+    json.quizSchedule.forEach((schedule, index) => {
+        const quizId = index + 1;
+        const quizElem = document.getElementById(`quizTime${quizId}`);
+        const quiz = json.quizzes[schedule.quizId];
+        if (quizElem) {
+            quizElem.value = quiz.timestamp;
+            document.getElementById(`quizTitle${quizId}`).value = quiz.title;
+            document.getElementById(`quizDesc${quizId}`).value = quiz.description;
+            document.getElementById(`presentItems${quizId}`).value = quiz.present_items;
+            document.getElementById(`timeLimit${quizId}`).value = quiz.timeLimit;
+            
+            // Create question fields
+            const questionCount = quiz.questions.length;
+            document.getElementById(`questionCount${quizId}`).value = questionCount;
+            window.generateQuestionFields(quizId);
+            
+            // Populate questions
+            quiz.questions.forEach((question, qIndex) => {
+                document.getElementById(`qText${quizId}-${qIndex + 1}`).value = question.question;
+                document.getElementById(`qType${quizId}-${qIndex + 1}`).value = question.type;
+                document.getElementById(`qPoints${quizId}-${qIndex + 1}`).value = question.points;
+                
+                if (question.type === 'multipleChoice') {
+                    document.getElementById(`qOptions${quizId}-${qIndex + 1}`).value = 
+                        question.options.join(',');
+                    document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value = 
+                        question.correctAnswer;
+                } else if (question.type === 'trueFalse') {
+                    document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value = 
+                        question.correctAnswer.toString();
+                }
+            });
+        }
+    });
+}
+
 function downloadFile(filename, content) {
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -474,10 +519,60 @@ function generateFiles() {
 // Global variable for student IDs
 let validStudentIds = null;
 
+// JSON config handler
+async function handleJsonConfigUpload(event) {
+    const file = event.target.files[0];
+    const status = document.getElementById('jsonUploadStatus');
+    
+    if (!file) return;
+    
+    try {
+        const config = JSON.parse(await file.text());
+        
+        // Validate JSON structure
+        if (!config.videoConfig?.source) {
+            throw new Error('Missing videoConfig.source in JSON');
+        }
+        if (!Array.isArray(config.quizSchedule)) {
+            throw new Error('quizSchedule must be an array');
+        }
+        if (!config.quizzes || typeof config.quizzes !== 'object') {
+            throw new Error('Missing quizzes object in JSON');
+        }
+        
+        populateFormFromJson(config);
+        status.textContent = "Config loaded successfully!";
+        status.style.color = 'green';
+    } catch (error) {
+        status.textContent = `Error: ${error.message}`;
+        status.style.color = 'red';
+        console.error('JSON config error:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('quizGeneratorForm');
     const quizzesContainer = document.getElementById('quizzesContainer');
     const generateQuizFieldsButton = document.getElementById('generateQuizFields');
+    
+    // Add JSON config uploader
+    const jsonUploadContainer = document.createElement('div');
+    jsonUploadContainer.className = 'upload-section';
+    jsonUploadContainer.innerHTML = `
+        <h3>Upload JSON Config</h3>
+        <input type="file" id="jsonConfigUpload" accept=".json" hidden>
+        <label for="jsonConfigUpload" class="upload-label">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            Choose JSON File
+        </label>
+        <div id="jsonUploadStatus"></div>
+    `;
+    quizzesContainer.parentNode.insertBefore(jsonUploadContainer, quizzesContainer);
+
+    // Handle JSON config upload
+    document.getElementById('jsonConfigUpload').addEventListener('change', handleJsonConfigUpload);
     const uploadIdsBtn = document.getElementById('uploadIdsBtn');
     const idFileInput = document.getElementById('idFile');
     const uploadStatus = document.getElementById('uploadStatus');
