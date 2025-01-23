@@ -337,7 +337,11 @@ function populateFormFromJson(json) {
             // Populate questions
             quiz.questions.forEach((question, qIndex) => {
                 document.getElementById(`qText${quizId}-${qIndex + 1}`).value = question.question;
-                document.getElementById(`qType${quizId}-${qIndex + 1}`).value = question.type;
+                const typeSelect = document.getElementById(`qType${quizId}-${qIndex + 1}`);
+                typeSelect.value = question.type;
+                // Trigger change event to show correct options
+                const event = new Event('change');
+                typeSelect.dispatchEvent(event);
                 document.getElementById(`qPoints${quizId}-${qIndex + 1}`).value = question.points;
                 
                 if (question.type === 'multipleChoice') {

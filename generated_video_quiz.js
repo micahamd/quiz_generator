@@ -5,22 +5,149 @@
             "title": "Generated Quiz",
             "description": "Auto-generated!",
             "version": "1.0.0",
-            "totalQuizzes": 1,
+            "totalQuizzes": 4,
             "validStudentIds": null,
             "passingScore": 70
         },
-        "quizSchedule": [{"time":10,"quizId":1,"title":"Q1","description":"first quiz"}],
+        "quizSchedule": [{"time":30,"quizId":1,"title":"Basic Concepts Quiz","description":"Testing understanding of initial concepts"},{"time":60,"quizId":2,"title":"Core Principles Quiz","description":"Evaluating comprehension of core principles"},{"time":80,"quizId":3,"title":"True/False Assessment","description":"Quick true/false check on key points"},{"time":100,"quizId":4,"title":"Final Understanding Check","description":"Final assessment of lecture comprehension"}],
         "quizzes": {
   "1": {
-    "title": "Q1",
-    "description": "first quiz",
+    "title": "Basic Concepts Quiz",
+    "description": "Testing understanding of initial concepts",
+    "present_items": "1",
+    "timeLimit": 120,
+    "questions": [
+      {
+        "id": "1.1",
+        "question": "What is the capital of France?",
+        "type": "multipleChoice",
+        "correctAnswer": "b",
+        "points": 5,
+        "options": [
+          "Berlin",
+          "Paris",
+          "London"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "1.2",
+        "question": "What is the chemical symbol for water?",
+        "type": "multipleChoice",
+        "correctAnswer": "a",
+        "points": 5,
+        "options": [
+          "H2O",
+          "CO2",
+          "NaCl"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      }
+    ]
+  },
+  "2": {
+    "title": "Core Principles Quiz",
+    "description": "Evaluating comprehension of core principles",
     "present_items": "ALL",
     "timeLimit": 180,
     "questions": [
       {
-        "id": "1.1",
-        "question": "what your name",
+        "id": "2.1",
+        "question": "What is the largest planet in our solar system?",
+        "type": "multipleChoice",
+        "correctAnswer": "b",
+        "points": 5,
+        "options": [
+          "Earth",
+          "Jupiter",
+          "Saturn"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "2.2",
+        "question": "What is the speed of light in vacuum?",
+        "type": "multipleChoice",
+        "correctAnswer": "a",
+        "points": 5,
+        "options": [
+          "300",
+          "000 km/s",
+          "150",
+          "000 km/s",
+          "500",
+          "000 km/s"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      }
+    ]
+  },
+  "3": {
+    "title": "True/False Assessment",
+    "description": "Quick true/false check on key points",
+    "present_items": "1",
+    "timeLimit": 60,
+    "questions": [
+      {
+        "id": "3.1",
+        "question": "The Earth is flat.",
         "type": "trueFalse",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "3.2",
+        "question": "Water boils at 100 degrees Celsius at sea level.",
+        "type": "trueFalse",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      }
+    ]
+  },
+  "4": {
+    "title": "Final Understanding Check",
+    "description": "Final assessment of lecture comprehension",
+    "present_items": "ALL",
+    "timeLimit": 300,
+    "questions": [
+      {
+        "id": "4.1",
+        "question": "What is the name of the university you are studying at?",
+        "type": "shortAnswer",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "4.2",
+        "question": "What is the name of this module?",
+        "type": "shortAnswer",
         "correctAnswer": "true",
         "points": 5,
         "options": [],
