@@ -22,6 +22,13 @@
             padding: 20px;
             border-radius: 8px;
         }
+        form > div {
+            margin-bottom: 15px;
+        }
+        form button {
+            margin-top: 10px;
+            cursor: pointer;
+        }
         h3 {
             margin-top: 0;
         }
@@ -32,12 +39,21 @@
             border-radius: 6px;
             padding: 15px;
         }
+        .quiz-section:hover, .upload-section:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            transition: 0.2s ease-in-out;
+        }
+        .question-section:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: 0.2s ease-in-out;
+        }
     </style>
 </head>
 <body>
     <form id="quizGeneratorForm">
         <div>
-            <label for="videoSource">Video Source (URL or path):</label>
+            <label for="videoSource">Video Source (file path):</label>
             <input type="text" id="videoSource" required>
         </div>
 
