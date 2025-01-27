@@ -554,6 +554,96 @@ async function handleJsonConfigUpload(event) {
     }
 }
 
+function exportJsonFile() {
+    // Gather quiz data (similar to generateFiles, but only produce JSON)
+    const videoSource = document.getElementById('videoSource').value.trim();
+    const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
+    
+    const quizSchedule = [];
+    const quizzes = {};
+    
+    for (let i = 1; i <= quizCount; i++) {
+        const time = parseInt(document.getElementById(`quizTime${i}`).value, 10) || 0;
+        const quizId = i;
+        const title = document.getElementById(`quizTitle${i}`).value;
+        const description = document.getElementById(`quizDesc${i}`).value;
+        const presentItems = document.getElementById(`presentItems${i}`).value;
+        const timeLimit = parseInt(document.getElementById(`timeLimit${i}`).value, 10) || 180;
+        
+        quizSchedule.push({ time, quizId, title, description });
+        quizzes[i] = {
+            title,
+            description,
+            present_items: presentItems,
+            timeLimit: timeLimit,
+            questions: []
+        };
+        
+        // Gather questions
+        const questionCount = parseInt(document.getElementById(`questionCount${i}`).value, 10) || 0;
+        for (let q = 1; q <= questionCount; q++) {
+            const questionText = document.getElementById(`qText${i}-${q}`).value;
+            const questionType = document.getElementById(`qType${i}-${q}`).value;
+            const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
+            let correctAnswer = '';
+            let options = [];
+            
+            switch (questionType) {
+                case 'multipleChoice':
+                    options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
+                    correctAnswer = document.getElementById(`qCorrect${i}-${q}`).value;
+                    break;
+                case 'trueFalse':
+                    correctAnswer = document.getElementById(`qCorrect${i}-${q}`).value;
+                    break;
+                case 'shortAnswer':
+                    correctAnswer = 'true'; // Placeholder
+                    break;
+            }
+            
+            quizzes[i].questions.push({
+                id: `${i}.${q}`,
+                question: questionText,
+                type: questionType,
+                correctAnswer: correctAnswer,
+                points: points,
+                options: options,
+                feedback: {
+                    correct: "Correct!",
+                    incorrect: "Incorrect."
+                }
+            });
+        }
+    }
+    
+    const exportedJson = {
+        "$schema": "./quiz_schema.json",
+        "videoConfig": {
+            "source": videoSource || "video.mp4",
+            "startOffset": 0,
+            "endPadding": 5
+        },
+        "quizSchedule": quizSchedule,
+        "quizzes": quizzes
+    };
+    
+    // Use user-defined filename or default
+    let exportFileName = document.getElementById('exportFileName').value.trim();
+    if (!exportFileName) {
+        exportFileName = 'my_question_bank.json';
+    }
+    
+    const blob = new Blob([JSON.stringify(exportedJson, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = exportFileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('quizGeneratorForm');
     const quizzesContainer = document.getElementById('quizzesContainer');
@@ -738,4 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         generateFiles();
     });
+
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    exportJsonBtn.addEventListener('click', exportJsonFile);
 });
