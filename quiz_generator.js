@@ -371,34 +371,50 @@ function downloadFile(filename, content) {
 }
 
 // Main function to generate quiz files
+// Global variable for student IDs (as in the original)
+let validStudentIds = null;
+
 function generateFiles() {
     // Collect basic info
     const videoSource = document.getElementById('videoSource').value.trim();
-    const sanitizedVideoSource = videoSource.replace(/["']/g, ''); // <-- Remove any quotes
+    const sanitizedVideoSource = videoSource.replace(/["']/g, '');
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
-    
-    // Build quiz data structure
+
+    // Add Student IDs handling (using global validStudentIds)
+    const idFileInput = document.getElementById('idFile');
+    if (idFileInput && idFileInput.files.length > 0) {
+        const file = idFileInput.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                validStudentIds = event.target.result.trim().split('\n').filter(id => id.length > 0);
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    // Build quiz data structure (using 'i' as key, as in original)
     const quizSchedule = [];
     const quizzes = {};
-    
+
     for (let i = 1; i <= quizCount; i++) {
         const time = parseInt(document.getElementById(`quizTime${i}`).value, 10) || 0;
-        const quizId = i;
+        const quizId = i; // Use 'i' directly as quizId (number), as in original
         const title = document.getElementById(`quizTitle${i}`).value;
         const description = document.getElementById(`quizDesc${i}`).value;
         const presentItems = document.getElementById(`presentItems${i}`).value;
         const timeLimit = parseInt(document.getElementById(`timeLimit${i}`).value, 10) || 180;
-        
+
         quizSchedule.push({ time, quizId, title, description });
-        quizzes[i] = {
-            title,
-            description,
+        quizzes[i] = { // Use 'i' as key for quizzes object, as in original
+            title: title,
+            description: description,
             present_items: presentItems,
             timeLimit: timeLimit,
             questions: []
         };
-        
-        // Gather questions
+
+        // Question gathering logic remains the same (using 'i' for quizId in question IDs)
         const questionCount = parseInt(document.getElementById(`questionCount${i}`).value, 10) || 0;
         for (let q = 1; q <= questionCount; q++) {
             const questionText = document.getElementById(`qText${i}-${q}`).value;
@@ -406,7 +422,7 @@ function generateFiles() {
             const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
             let correctAnswer = '';
             let options = [];
-            
+
             switch (questionType) {
                 case 'multipleChoice':
                     options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
@@ -419,8 +435,8 @@ function generateFiles() {
                     correctAnswer = 'true'; // Placeholder
                     break;
             }
-            
-            quizzes[i].questions.push({
+
+            quizzes[i].questions.push({ // Use 'i' for quizId in question IDs, as in original
                 id: `${i}.${q}`,
                 question: questionText,
                 type: questionType,
@@ -434,8 +450,54 @@ function generateFiles() {
             });
         }
     }
-    
-    // Generate final JS
+
+    // Add PHP toggle handling (using ternary operator and robust regex)
+    const saveResultsViaPhp = document.getElementById('togglePhpResults')?.checked || false;
+
+    let saveResultsFunctionCode = saveResultsViaPhp ?
+        // PHP save results function
+        `function saveResults() {
+            const results = {
+                studentId: state.studentId,
+                timestamp: new Date().toISOString(),
+                results: state.quizResults
+            };
+
+            showLoading(true); // Show loading indicator during submission
+
+            fetch('save_results.php', { //  <---  Path to your PHP script (adjust if needed)
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(results)
+            })
+            .then(response => {
+                showLoading(false); // Hide loading indicator after response
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json(); // Expecting JSON response from PHP
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    showError('Results saved successfully on the server!');
+                } else {
+                    showError('Failed to save results: ' + data.message);
+                    console.error('Server save error:', data.message);
+                }
+            })
+            .catch(error => {
+                showLoading(false); // Ensure loading indicator is hidden on error
+                showError('Error saving results. Please try again later.');
+                console.error('Fetch error:', error);
+            });
+        }` :
+        // Original JSON download function (extracted from quizImplementation)
+        quizImplementation.match(/function saveResults\(\) \{[\s\S]*?\}/)[0];
+
+
+    // Generate final JS - Inject the dynamically selected saveResultsFunctionCode **(INSIDE generatedJs)**
     const generatedJs = `
     // filepath: generated_video_quiz.js
     const quizData = {
@@ -450,10 +512,10 @@ function generateFiles() {
         "quizSchedule": ${JSON.stringify(quizSchedule)},
         "quizzes": ${JSON.stringify(quizzes, null, 2)}
     };
-    ${quizImplementation}
+    ${quizImplementation.replace(/function saveResults\(\) \{[\s\S]*?\}/, saveResultsFunctionCode)}
     `;
-    
-    // Generate final HTML
+
+    // Generate final HTML (remains unchanged - using backticks for template literal consistency)
     const generatedHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -477,12 +539,12 @@ function generateFiles() {
             <section id="quiz-container" aria-label="Quiz Section">
                 <!-- Loading State -->
                 <div id="quiz-loading" class="loading" role="status" aria-live="polite"></div>
-                
+
                 <!-- Quiz Progress -->
                 <div class="quiz-progress" aria-label="Quiz Progress">
                     <div id="progress-indicator"></div>
                 </div>
-                
+
                 <!-- Quiz Questions -->
                 ${Array.from({ length: quizCount }, (_, i) => `<div id="quiz-${i + 1}" class="quiz-section" aria-label="Quiz ${i + 1}"></div>`).join('\n                ')}
             </section>
@@ -515,13 +577,11 @@ function generateFiles() {
     </html>
     `;
 
+
     // Create downloadable files
     downloadFile('generated_video_quiz.js', generatedJs);
     downloadFile('generated_video_quiz.html', generatedHtml);
 }
-
-// Global variable for student IDs
-let validStudentIds = null;
 
 // JSON config handler
 async function handleJsonConfigUpload(event) {
