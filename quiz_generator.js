@@ -455,46 +455,45 @@ function generateFiles() {
     const saveResultsViaPhp = document.getElementById('togglePhpResults')?.checked || false;
 
     let saveResultsFunctionCode = saveResultsViaPhp ?
-        // PHP save results function
-        `function saveResults() {
-            const results = {
-                studentId: state.studentId,
-                timestamp: new Date().toISOString(),
-                results: state.quizResults
-            };
+    // PHP save results function
+    `function saveResults() {
+        const results = {
+            studentId: state.studentId,
+            timestamp: new Date().toISOString(),
+            results: state.quizResults
+        };
 
-            showLoading(true); // Show loading indicator during submission
+        showLoading(true);
 
-            fetch('save_results.php', { //  <---  Path to your PHP script (adjust if needed)
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(results)
-            })
-            .then(response => {
-                showLoading(false); // Hide loading indicator after response
-                if (!response.ok) {
-                    throw new Error('HTTP error! status: ' + response.status);
-                }
-                return response.json(); // Expecting JSON response from PHP
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    showError('Results saved successfully on the server!');
-                } else {
-                    showError('Failed to save results: ' + data.message);
-                    console.error('Server save error:', data.message);
-                }
-            })
-            .catch(error => {
-                showLoading(false); // Ensure loading indicator is hidden on error
-                showError('Error saving results. Please try again later.');
-                console.error('Fetch error:', error);
-            });
-        }` :
-        // Original JSON download function (extracted from quizImplementation)
-        quizImplementation.match(/function saveResults\(\) \{[\s\S]*?\}/)[0];
+        fetch('save_results.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(results)
+        })
+        .then(response => {
+            showLoading(false);
+            if (!response.ok) {
+                throw new Error('HTTP error! status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                showError('Results saved successfully on the server!');
+            } else {
+                showError('Failed to save results: ' + data.message);
+                console.error('Server save error:', data.message);
+            }
+        })
+        .catch(error => {
+            showLoading(false);
+            showError('Error saving results. Please try again later.');
+            console.error('Fetch error:', error);
+        });
+    }` : 
+    quizImplementation.match(/function saveResults\(\) \{[\s\S]*?\}/)[0];
 
 
     // Generate final JS - Inject the dynamically selected saveResultsFunctionCode **(INSIDE generatedJs)**
