@@ -457,49 +457,75 @@ function generateFiles() {
     // Add PHP toggle handling (using ternary operator and robust regex)
     const saveResultsViaPhp = document.getElementById('togglePhpResults')?.checked || false;
 
-    let saveResultsFunctionCode = saveResultsViaPhp ?
-    // PHP save results function
-    `function saveResults() {
-        const results = {
-            studentId: state.studentId,
-            timestamp: new Date().toISOString(),
-            results: state.quizResults
-        };
+    let saveResultsFunctionCode;
+    if (saveResultsViaPhp) {
+        // PHP save results function
+        saveResultsFunctionCode = `function saveResults() {
+            const results = {
+                studentId: state.studentId,
+                timestamp: new Date().toISOString(),
+                results: state.quizResults
+            };
 
-        showLoading(true);
+            showLoading(true);
 
-        fetch('save_results.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(results)
-        })
-        .then(response => {
-            showLoading(false);
-            if (!response.ok) {
-                throw new Error('HTTP error! status: ' + response.status);
+            fetch('save_results.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(results)
+            })
+            .then(response => {
+                showLoading(false);
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    showError('Results saved successfully on the server!');
+                } else {
+                    throw new Error(data.message || 'Failed to save results');
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                showError('Error saving results: ' + error.message);
+                console.error('Save error:', error);
+            });
+        }`;
+    } else {
+        // Client-side implementation for TOGGLE=OFF
+        saveResultsFunctionCode = `function saveResults() {
+            try {
+                const results = {
+                    studentId: state.studentId,
+                    timestamp: new Date().toISOString(),
+                    results: state.quizResults
+                };
+                
+                const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = \`quiz_results_\${state.studentId}.json\`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showError('Results saved successfully!');
+            } catch (error) {
+                showError('Failed to save results');
+                console.error('Save error:', error);
             }
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'success') {
-                showError('Results saved successfully on the server!');
-            } else {
-                throw new Error(data.message || 'Failed to save results');
-            }
-        })
-        .catch(error => {
-            showLoading(false);
-            showError('Error saving results: ' + error.message);
-            console.error('Save error:', error);
-        });
-    }` : 
-    // Use the original client-side implementation for TOGGLE=OFF
-    quizImplementation.match(/function saveResults\(\) \{[\s\S]*?\}/)[0];
+        }`;
+    }
 
 
-    // Generate final JS - Inject the dynamically selected saveResultsFunctionCode **(INSIDE generatedJs)**
+    // Generate final JS
     const generatedJs = `
     // filepath: generated_video_quiz.js
     const quizData = {
@@ -514,8 +540,8 @@ function generateFiles() {
         "quizSchedule": ${JSON.stringify(quizSchedule)},
         "quizzes": ${JSON.stringify(quizzes, null, 2)}
     };
-    ${quizImplementation.replace(/function saveResults\(\) \{[\s\S]*?\}/, saveResultsFunctionCode)}
-    `;
+
+    ${quizImplementation.replace(/function saveResults\(\)[\s\S]*?^}(?=\n*\/\/ Initialize)/m, saveResultsFunctionCode)}`;
 
     // Generate final HTML (remains unchanged - using backticks for template literal consistency)
     const generatedHtml = `

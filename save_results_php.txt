@@ -1,0 +1,34 @@
+<?php
+header('Content-Type: application/json'); // Set header for JSON response
+
+$upload_dir = __DIR__ . '/quiz-results/'; // Directory to save results (relative to this script)
+
+if (!is_dir($upload_dir)) {
+    mkdir($upload_dir, 0755, true); // Create directory if it doesn't exist
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $results_json = file_get_contents('php://input'); // Get raw POST data
+    $student_id = ''; // Initialize student ID
+
+    // Try to decode JSON to get student ID for filename
+    $results_data = json_decode($results_json, true);
+    if ($results_data && isset($results_data['studentId'])) {
+        $student_id = $results_data['studentId'];
+    }
+
+    $filename = 'quiz_results_' . date('Ymd_His') . '_' . $student_id . '.json'; // Unique filename
+    $filepath = $upload_dir . $filename;
+
+    if (file_put_contents($filepath, $results_json)) {
+        http_response_code(200); // OK
+        echo json_encode(['status' => 'success', 'message' => 'Results saved successfully on server.']);
+    } else {
+        http_response_code(500); // Internal Server Error
+        echo json_encode(['status' => 'error', 'message' => 'Failed to save results to server.']);
+    }
+} else {
+    http_response_code(400); // Bad Request
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method. Use POST.']);
+}
+?>
