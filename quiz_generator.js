@@ -387,7 +387,10 @@ function generateFiles() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                validStudentIds = event.target.result.trim().split('\n').filter(id => id.length > 0);
+                validStudentIds = event.target.result
+                    .split(/[\n,]/)
+                    .map(id => id.replace(/[\r\n]+/g, '').trim())
+                    .filter(id => id.length > 0);
             };
             reader.readAsText(file);
         }
@@ -483,16 +486,16 @@ function generateFiles() {
             if (data.status === 'success') {
                 showError('Results saved successfully on the server!');
             } else {
-                showError('Failed to save results: ' + data.message);
-                console.error('Server save error:', data.message);
+                throw new Error(data.message || 'Failed to save results');
             }
         })
         .catch(error => {
             showLoading(false);
-            showError('Error saving results. Please try again later.');
-            console.error('Fetch error:', error);
+            showError('Error saving results: ' + error.message);
+            console.error('Save error:', error);
         });
     }` : 
+    // Use the original client-side implementation for TOGGLE=OFF
     quizImplementation.match(/function saveResults\(\) \{[\s\S]*?\}/)[0];
 
 
@@ -505,7 +508,7 @@ function generateFiles() {
             "description": "Auto-generated!",
             "version": "1.0.0",
             "totalQuizzes": ${quizCount},
-            "validStudentIds": ${validStudentIds ? JSON.stringify(validStudentIds) : null},
+            "validStudentIds": ${validStudentIds ? JSON.stringify(validStudentIds.map(id => id.replace(/[\r\n]+/g, '').trim())) : null},
             "passingScore": 70
         },
         "quizSchedule": ${JSON.stringify(quizSchedule)},
@@ -592,7 +595,7 @@ async function handleJsonConfigUpload(event) {
     try {
         const config = JSON.parse(await file.text());
         
-        // Validate JSON structure
+        // Clean and validate JSON structure
         if (!config.videoConfig?.source) {
             throw new Error('Missing videoConfig.source in JSON');
         }
@@ -601,6 +604,13 @@ async function handleJsonConfigUpload(event) {
         }
         if (!config.quizzes || typeof config.quizzes !== 'object') {
             throw new Error('Missing quizzes object in JSON');
+        }
+
+        // Clean student IDs if present
+        if (config.metadata?.validStudentIds) {
+            config.metadata.validStudentIds = config.metadata.validStudentIds.map(id => 
+                id.replace(/[\r\n]+/g, '').trim()
+            );
         }
         
         populateFormFromJson(config);
@@ -740,9 +750,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             try {
                 const text = await file.text();
-                // Split by newline or comma and clean up whitespace
+                // Split by newline or comma, clean up whitespace and remove \r\n
                 validStudentIds = text.split(/[\n,]/)
-                    .map(id => id.trim())
+                    .map(id => id.replace(/[\r\n]+/g, '').trim())
                     .filter(id => id.length > 0);
                 uploadStatus.textContent = `Loaded ${validStudentIds.length} valid IDs`;
             } catch (error) {
