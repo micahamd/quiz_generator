@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 header('Content-Type: application/json');
-$upload_dir = __DIR__ . '/../quiz_results/'; // Corrected path
+$upload_dir = __DIR__ . '/../quiz_results/'; // Double-check that path is correct
 
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);

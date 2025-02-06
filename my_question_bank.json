@@ -1,0 +1,80 @@
+{
+  "$schema": "./quiz_schema.json",
+  "videoConfig": {
+    "source": "\"../videos/PS203_1.mp4\"",
+    "startOffset": 0,
+    "endPadding": 5
+  },
+  "quizSchedule": [
+    {
+      "time": 10,
+      "quizId": 1,
+      "title": "Q1",
+      "description": "first quiz"
+    },
+    {
+      "time": 20,
+      "quizId": 2,
+      "title": "Q2",
+      "description": "First Assessment"
+    }
+  ],
+  "quizzes": {
+    "1": {
+      "title": "Q1",
+      "description": "first quiz",
+      "present_items": "1",
+      "timeLimit": 180,
+      "questions": [
+        {
+          "id": "1.1",
+          "question": "What's the acronym of this university?",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 1,
+          "options": [
+            "USP",
+            "UPS",
+            "PUS"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.2",
+          "question": "The acronym of our university is UPS",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 1,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "2": {
+      "title": "Q2",
+      "description": "First Assessment",
+      "present_items": "ALL",
+      "timeLimit": 140,
+      "questions": [
+        {
+          "id": "2.1",
+          "question": "What do you think of this lecture so far?",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    }
+  }
+}

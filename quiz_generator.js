@@ -405,7 +405,9 @@ function generateFiles() {
         const quizId = i; // Use 'i' directly as quizId (number), as in original
         const title = document.getElementById(`quizTitle${i}`).value;
         const description = document.getElementById(`quizDesc${i}`).value;
-        const presentItems = document.getElementById(`presentItems${i}`).value;
+        // Modified conversion for present_items:
+        const presentItemsRaw = document.getElementById(`presentItems${i}`).value;
+        const presentItems = presentItemsRaw.trim().toUpperCase() === 'ALL' ? 'ALL' : parseInt(presentItemsRaw, 10);
         const timeLimit = parseInt(document.getElementById(`timeLimit${i}`).value, 10) || 180;
 
         quizSchedule.push({ time, quizId, title, description });
