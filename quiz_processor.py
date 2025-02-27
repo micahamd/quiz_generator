@@ -3,7 +3,7 @@ import csv
 import os
 import glob
 import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
+from tkinter import filedialog, ttk, messagebox, simpledialog
 from datetime import datetime
 import threading
 
@@ -14,7 +14,7 @@ def determine_question_type(question_data):
     else:
         return 'short_answer'
 
-def process_quiz_file(file_path):
+def process_quiz_file(file_path, course_mappings=None):
     """Process a single quiz result JSON file."""
     try:
         with open(file_path, 'r') as file:
@@ -23,6 +23,16 @@ def process_quiz_file(file_path):
         student_id = data.get('studentId', 'Unknown')
         timestamp = data.get('timestamp', '')
         results = data.get('results', [])
+        
+        # Determine course based on student ID
+        course_id = "Not Found"
+        if course_mappings:
+            matching_courses = []
+            for course_name, student_ids in course_mappings.items():
+                if student_id in student_ids:
+                    matching_courses.append(course_name)
+            if matching_courses:
+                course_id = "/".join(matching_courses)
         
         processed_results = []
         for result in results:
@@ -37,6 +47,7 @@ def process_quiz_file(file_path):
             # Format result based on question type
             result_dict = {
                 'StudentID': student_id,
+                'CourseID': course_id,
                 'Timestamp': timestamp,
                 'QuizID': quiz_id,
                 'QuestionID': question_id,
@@ -65,7 +76,7 @@ def export_to_csv(results, output_file):
         print("No results to export")
         return False
         
-    fieldnames = ['StudentID', 'Timestamp', 'QuizID', 'QuestionID', 
+    fieldnames = ['StudentID', 'CourseID', 'Timestamp', 'QuizID', 'QuestionID', 
                   'QuestionType', 'Answer', 'Correct', 'Points']
                   
     try:
@@ -79,7 +90,7 @@ def export_to_csv(results, output_file):
         print(f"Error exporting to CSV: {e}")
         return False
 
-def process_files(file_paths, output_dir=None):
+def process_files(file_paths, output_dir=None, course_mappings=None):
     """Process multiple selected quiz files."""
     if output_dir is None:
         output_dir = os.path.dirname(file_paths[0]) if file_paths else os.getcwd()
@@ -91,7 +102,7 @@ def process_files(file_paths, output_dir=None):
     all_results = []
     for json_file in file_paths:
         print(f"Processing {json_file}...")
-        results = process_quiz_file(json_file)
+        results = process_quiz_file(json_file, course_mappings)
         all_results.extend(results)
     
     # Export all results to a single CSV file
@@ -103,7 +114,7 @@ def process_files(file_paths, output_dir=None):
         return output_file
     return None
 
-def process_directory(input_dir, output_dir=None):
+def process_directory(input_dir, output_dir=None, course_mappings=None):
     """Process all JSON quiz files in a directory."""
     if output_dir is None:
         output_dir = input_dir
@@ -118,18 +129,19 @@ def process_directory(input_dir, output_dir=None):
         print(f"No quiz result JSON files found in {input_dir}")
         return None
     
-    return process_files(json_files, output_dir)
+    return process_files(json_files, output_dir, course_mappings)
 
 class QuizProcessorGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Quiz Results Processor")
-        self.root.geometry("650x450")
+        self.root.geometry("650x550")  # Made taller to accommodate course mapping display
         self.root.resizable(True, True)
         
         self.create_widgets()
         self.selected_files = []
         self.output_directory = None
+        self.course_mappings = {}  # Dictionary to store course -> [student_ids] mappings
         
     def create_widgets(self):
         # Create main frame
@@ -148,9 +160,24 @@ class QuizProcessorGUI:
         ttk.Button(file_frame, text="Select Folder", command=self.select_folder).grid(row=0, column=1, padx=5, pady=5)
         ttk.Button(file_frame, text="Clear Selection", command=self.clear_selection).grid(row=0, column=2, padx=5, pady=5)
         
+        # Course Mapping section
+        course_frame = ttk.LabelFrame(main_frame, text="Course Mappings", padding="10")
+        course_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5, padx=5)
+        
+        ttk.Button(course_frame, text="ID-Course Mapping", command=self.id_course_mapping).grid(row=0, column=0, padx=5, pady=5)
+        ttk.Button(course_frame, text="Clear Mappings", command=self.clear_mappings).grid(row=0, column=1, padx=5, pady=5)
+        
+        # Course mapping display
+        course_list_frame = ttk.Frame(course_frame)
+        course_list_frame.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=5)
+        
+        self.course_list_var = tk.StringVar(value="No course mappings loaded")
+        self.course_list_label = ttk.Label(course_list_frame, textvariable=self.course_list_var, wraplength=550)
+        self.course_list_label.pack(fill=tk.X, expand=True)
+        
         # Files list
         files_frame = ttk.LabelFrame(main_frame, text="Selected Files", padding="10")
-        files_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5, padx=5)
+        files_frame.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5, padx=5)
         files_frame.columnconfigure(0, weight=1)
         files_frame.rowconfigure(0, weight=1)
         
@@ -164,7 +191,7 @@ class QuizProcessorGUI:
         
         # Output directory selection
         output_frame = ttk.LabelFrame(main_frame, text="Output Options", padding="10")
-        output_frame.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5, padx=5)
+        output_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5, padx=5)
         
         ttk.Label(output_frame, text="Output Directory:").grid(row=0, column=0, sticky=tk.W, padx=5)
         self.output_dir_var = tk.StringVar(value="Same as input")
@@ -172,23 +199,20 @@ class QuizProcessorGUI:
         self.output_dir_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
         ttk.Button(output_frame, text="Browse...", command=self.select_output_dir).grid(row=0, column=2, padx=5)
         
-        # Additional buttons frame
+        # Process buttons frame
         buttons_frame = ttk.Frame(main_frame, padding="10")
-        buttons_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
-        
-        # ID-Course mapping button (placeholder)
-        ttk.Button(buttons_frame, text="ID-Course Mapping", command=self.id_course_mapping).grid(row=0, column=0, padx=5)
+        buttons_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         
         # Process button
         self.process_button = ttk.Button(buttons_frame, text="Process Files", command=self.process_selected_files)
-        self.process_button.grid(row=0, column=1, padx=5)
+        self.process_button.grid(row=0, column=0, padx=5)
         
         # Exit button
-        ttk.Button(buttons_frame, text="Exit", command=self.root.quit).grid(row=0, column=2, padx=5)
+        ttk.Button(buttons_frame, text="Exit", command=self.root.quit).grid(row=0, column=1, padx=5)
         
         # Progress bar
         progress_frame = ttk.Frame(main_frame, padding="10")
-        progress_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        progress_frame.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
         
         ttk.Label(progress_frame, text="Progress:").grid(row=0, column=0, sticky=tk.W, padx=5)
         self.progress_bar = ttk.Progressbar(progress_frame, mode="indeterminate")
@@ -197,12 +221,12 @@ class QuizProcessorGUI:
         # Status label
         self.status_var = tk.StringVar(value="Ready")
         status_label = ttk.Label(main_frame, textvariable=self.status_var)
-        status_label.grid(row=6, column=0, columnspan=3, pady=5, sticky=(tk.W, tk.E))
+        status_label.grid(row=7, column=0, columnspan=3, pady=5, sticky=(tk.W, tk.E))
         
         # Configure grid weights
         main_frame.columnconfigure(0, weight=1)
-        main_frame.rowconfigure(2, weight=1)
-        
+        main_frame.rowconfigure(3, weight=1)  # Files list should expand
+    
     def select_files(self):
         files = filedialog.askopenfilenames(
             title="Select Quiz JSON Files",
@@ -241,10 +265,60 @@ class QuizProcessorGUI:
             self.output_dir_var.set(directory)
     
     def id_course_mapping(self):
-        messagebox.showinfo(
-            "ID-Course Mapping", 
-            "This feature will allow you to map student IDs to course enrollments.\n\nComing in a future update!"
+        """Handle the ID-Course mapping functionality"""
+        # Open file dialog to select a text file with student IDs
+        file_path = filedialog.askopenfilename(
+            title="Select Student ID List",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")]
         )
+        
+        if not file_path:
+            return
+            
+        # Ask for course name
+        default_name = os.path.basename(file_path).split('.')[0]
+        course_name = simpledialog.askstring(
+            "Course Name", 
+            "Enter a name for this course:",
+            initialvalue=default_name
+        )
+        
+        if not course_name:
+            return
+            
+        # Read student IDs from the file
+        try:
+            with open(file_path, 'r') as f:
+                student_ids = [line.strip() for line in f if line.strip()]
+                
+            # Add to mappings
+            self.course_mappings[course_name] = student_ids
+            self.update_course_list_display()
+            
+            messagebox.showinfo(
+                "Mapping Added", 
+                f"Added {len(student_ids)} student IDs for course '{course_name}'"
+            )
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to read student ID file: {e}")
+    
+    def clear_mappings(self):
+        """Clear all course mappings"""
+        if self.course_mappings:
+            if messagebox.askyesno("Clear Mappings", "Are you sure you want to clear all course mappings?"):
+                self.course_mappings = {}
+                self.update_course_list_display()
+                messagebox.showinfo("Mappings Cleared", "All course mappings have been cleared")
+    
+    def update_course_list_display(self):
+        """Update the display of loaded course mappings"""
+        if not self.course_mappings:
+            self.course_list_var.set("No course mappings loaded")
+        else:
+            mapping_text = []
+            for course, ids in self.course_mappings.items():
+                mapping_text.append(f"{course} list updated ({len(ids)} students)")
+            self.course_list_var.set(", ".join(mapping_text))
     
     def process_selected_files(self):
         if not self.selected_files:
@@ -263,7 +337,11 @@ class QuizProcessorGUI:
         
         # Run processing in a separate thread to avoid freezing the UI
         def process_thread():
-            output_file = process_files(self.selected_files, output_dir)
+            output_file = process_files(
+                self.selected_files, 
+                output_dir, 
+                self.course_mappings if self.course_mappings else None
+            )
             
             # Update UI from the main thread
             self.root.after(0, lambda: self.processing_complete(output_file))

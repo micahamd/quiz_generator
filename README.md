@@ -72,9 +72,10 @@ This tool processes JSON quiz result files and converts them to a CSV format tha
 - Identifies different question types (multiple choice, true/false, short answer)
 - Exports results to CSV format
 - Works with different quiz formats
-- **New:** Graphical user interface for easier operation
-- **New:** Select multiple files or an entire folder
-- **New:** Customizable output location
+- Graphical user interface for easier operation
+- Select multiple files or an entire folder
+- Customizable output location
+- **New:** Student ID to Course mapping functionality
 
 ## Requirements
 
