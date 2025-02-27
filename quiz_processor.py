@@ -1,0 +1,313 @@
+import json
+import csv
+import os
+import glob
+import tkinter as tk
+from tkinter import filedialog, ttk, messagebox
+from datetime import datetime
+import threading
+
+def determine_question_type(question_data):
+    """Determine the question type based on available fields."""
+    if 'correct' in question_data:
+        return 'multiple_choice' if question_data.get('answer', '').lower() in 'abcdefgh' else 'true_false'
+    else:
+        return 'short_answer'
+
+def process_quiz_file(file_path):
+    """Process a single quiz result JSON file."""
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        
+        student_id = data.get('studentId', 'Unknown')
+        timestamp = data.get('timestamp', '')
+        results = data.get('results', [])
+        
+        processed_results = []
+        for result in results:
+            quiz_id = result.get('quizId', 'Unknown')
+            question_id = result.get('questionId', 'Unknown')
+            answer = result.get('answer', '')
+            points = result.get('points', 0)
+            
+            # Determine question type
+            question_type = determine_question_type(result)
+            
+            # Format result based on question type
+            result_dict = {
+                'StudentID': student_id,
+                'Timestamp': timestamp,
+                'QuizID': quiz_id,
+                'QuestionID': question_id,
+                'QuestionType': question_type,
+                'Answer': answer,
+                'Points': points
+            }
+            
+            # Add correctness info if available
+            if 'correct' in result:
+                result_dict['Correct'] = 'Yes' if result['correct'] else 'No'
+            else:
+                result_dict['Correct'] = 'N/A (Short Answer)'
+                
+            processed_results.append(result_dict)
+            
+        return processed_results
+        
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
+        return []
+
+def export_to_csv(results, output_file):
+    """Export processed results to a CSV file."""
+    if not results:
+        print("No results to export")
+        return False
+        
+    fieldnames = ['StudentID', 'Timestamp', 'QuizID', 'QuestionID', 
+                  'QuestionType', 'Answer', 'Correct', 'Points']
+                  
+    try:
+        with open(output_file, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for result in results:
+                writer.writerow(result)
+        return True
+    except Exception as e:
+        print(f"Error exporting to CSV: {e}")
+        return False
+
+def process_files(file_paths, output_dir=None):
+    """Process multiple selected quiz files."""
+    if output_dir is None:
+        output_dir = os.path.dirname(file_paths[0]) if file_paths else os.getcwd()
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Process each file
+    all_results = []
+    for json_file in file_paths:
+        print(f"Processing {json_file}...")
+        results = process_quiz_file(json_file)
+        all_results.extend(results)
+    
+    # Export all results to a single CSV file
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_file = os.path.join(output_dir, f"quiz_results_summary_{timestamp}.csv")
+    
+    if export_to_csv(all_results, output_file):
+        print(f"Results successfully exported to {output_file}")
+        return output_file
+    return None
+
+def process_directory(input_dir, output_dir=None):
+    """Process all JSON quiz files in a directory."""
+    if output_dir is None:
+        output_dir = input_dir
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Get all JSON files in the directory
+    json_files = glob.glob(os.path.join(input_dir, '*_s*.json'))
+    
+    if not json_files:
+        print(f"No quiz result JSON files found in {input_dir}")
+        return None
+    
+    return process_files(json_files, output_dir)
+
+class QuizProcessorGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Quiz Results Processor")
+        self.root.geometry("650x450")
+        self.root.resizable(True, True)
+        
+        self.create_widgets()
+        self.selected_files = []
+        self.output_directory = None
+        
+    def create_widgets(self):
+        # Create main frame
+        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Title
+        title_label = ttk.Label(main_frame, text="Quiz Results Processor", font=("Arial", 16, "bold"))
+        title_label.grid(row=0, column=0, columnspan=3, pady=10, sticky=tk.W)
+        
+        # File selection section
+        file_frame = ttk.LabelFrame(main_frame, text="Input Selection", padding="10")
+        file_frame.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5, padx=5)
+        
+        ttk.Button(file_frame, text="Select Files", command=self.select_files).grid(row=0, column=0, padx=5, pady=5)
+        ttk.Button(file_frame, text="Select Folder", command=self.select_folder).grid(row=0, column=1, padx=5, pady=5)
+        ttk.Button(file_frame, text="Clear Selection", command=self.clear_selection).grid(row=0, column=2, padx=5, pady=5)
+        
+        # Files list
+        files_frame = ttk.LabelFrame(main_frame, text="Selected Files", padding="10")
+        files_frame.grid(row=2, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=5, padx=5)
+        files_frame.columnconfigure(0, weight=1)
+        files_frame.rowconfigure(0, weight=1)
+        
+        self.file_list = tk.Listbox(files_frame, height=10, selectmode=tk.EXTENDED)
+        self.file_list.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Scrollbar for files list
+        scrollbar = ttk.Scrollbar(files_frame, orient=tk.VERTICAL, command=self.file_list.yview)
+        scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
+        self.file_list['yscrollcommand'] = scrollbar.set
+        
+        # Output directory selection
+        output_frame = ttk.LabelFrame(main_frame, text="Output Options", padding="10")
+        output_frame.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5, padx=5)
+        
+        ttk.Label(output_frame, text="Output Directory:").grid(row=0, column=0, sticky=tk.W, padx=5)
+        self.output_dir_var = tk.StringVar(value="Same as input")
+        self.output_dir_entry = ttk.Entry(output_frame, textvariable=self.output_dir_var, width=40)
+        self.output_dir_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
+        ttk.Button(output_frame, text="Browse...", command=self.select_output_dir).grid(row=0, column=2, padx=5)
+        
+        # Additional buttons frame
+        buttons_frame = ttk.Frame(main_frame, padding="10")
+        buttons_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        
+        # ID-Course mapping button (placeholder)
+        ttk.Button(buttons_frame, text="ID-Course Mapping", command=self.id_course_mapping).grid(row=0, column=0, padx=5)
+        
+        # Process button
+        self.process_button = ttk.Button(buttons_frame, text="Process Files", command=self.process_selected_files)
+        self.process_button.grid(row=0, column=1, padx=5)
+        
+        # Exit button
+        ttk.Button(buttons_frame, text="Exit", command=self.root.quit).grid(row=0, column=2, padx=5)
+        
+        # Progress bar
+        progress_frame = ttk.Frame(main_frame, padding="10")
+        progress_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=5)
+        
+        ttk.Label(progress_frame, text="Progress:").grid(row=0, column=0, sticky=tk.W, padx=5)
+        self.progress_bar = ttk.Progressbar(progress_frame, mode="indeterminate")
+        self.progress_bar.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=5)
+        
+        # Status label
+        self.status_var = tk.StringVar(value="Ready")
+        status_label = ttk.Label(main_frame, textvariable=self.status_var)
+        status_label.grid(row=6, column=0, columnspan=3, pady=5, sticky=(tk.W, tk.E))
+        
+        # Configure grid weights
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(2, weight=1)
+        
+    def select_files(self):
+        files = filedialog.askopenfilenames(
+            title="Select Quiz JSON Files",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+        if files:
+            self.selected_files = list(files)
+            self.update_file_list()
+    
+    def select_folder(self):
+        folder = filedialog.askdirectory(title="Select Folder with Quiz JSON Files")
+        if folder:
+            json_files = glob.glob(os.path.join(folder, '*_s*.json'))
+            if not json_files:
+                messagebox.showwarning(
+                    "No Files Found", 
+                    "No quiz result JSON files found in the selected folder."
+                )
+            else:
+                self.selected_files = json_files
+                self.update_file_list()
+    
+    def clear_selection(self):
+        self.selected_files = []
+        self.update_file_list()
+    
+    def update_file_list(self):
+        self.file_list.delete(0, tk.END)
+        for file in self.selected_files:
+            self.file_list.insert(tk.END, os.path.basename(file))
+    
+    def select_output_dir(self):
+        directory = filedialog.askdirectory(title="Select Output Directory")
+        if directory:
+            self.output_directory = directory
+            self.output_dir_var.set(directory)
+    
+    def id_course_mapping(self):
+        messagebox.showinfo(
+            "ID-Course Mapping", 
+            "This feature will allow you to map student IDs to course enrollments.\n\nComing in a future update!"
+        )
+    
+    def process_selected_files(self):
+        if not self.selected_files:
+            messagebox.showwarning("No Files", "Please select files or a folder first.")
+            return
+        
+        output_dir = self.output_directory if self.output_directory else None
+        if self.output_dir_var.get() != "Same as input" and not self.output_directory:
+            messagebox.showwarning("Invalid Output", "Please select a valid output directory.")
+            return
+        
+        # Disable buttons during processing
+        self.process_button.config(state=tk.DISABLED)
+        self.progress_bar.start()
+        self.status_var.set("Processing files...")
+        
+        # Run processing in a separate thread to avoid freezing the UI
+        def process_thread():
+            output_file = process_files(self.selected_files, output_dir)
+            
+            # Update UI from the main thread
+            self.root.after(0, lambda: self.processing_complete(output_file))
+        
+        thread = threading.Thread(target=process_thread)
+        thread.daemon = True
+        thread.start()
+    
+    def processing_complete(self, output_file):
+        self.progress_bar.stop()
+        self.process_button.config(state=tk.NORMAL)
+        
+        if output_file:
+            self.status_var.set(f"Processing complete! Output saved to: {os.path.basename(output_file)}")
+            messagebox.showinfo(
+                "Processing Complete", 
+                f"Quiz results have been processed and saved to:\n{output_file}"
+            )
+        else:
+            self.status_var.set("Processing failed. Check console for details.")
+            messagebox.showerror(
+                "Processing Failed", 
+                "Failed to process quiz results. Please check the console for error messages."
+            )
+
+def run_gui():
+    root = tk.Tk()
+    app = QuizProcessorGUI(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Process quiz result JSON files and export to CSV')
+    parser.add_argument('--gui', '-g', action='store_true', help='Run with graphical user interface')
+    parser.add_argument('--input', '-i', help='Directory containing quiz result JSON files')
+    parser.add_argument('--output', '-o', help='Directory for output CSV files')
+    parser.add_argument('--files', '-f', nargs='+', help='Specific JSON files to process')
+    
+    args = parser.parse_args()
+    
+    if args.gui or not (args.input or args.files):
+        run_gui()
+    elif args.files:
+        process_files(args.files, args.output)
+    elif args.input:
+        process_directory(args.input, args.output)

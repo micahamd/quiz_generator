@@ -1,0 +1,213 @@
+{
+  "$schema": "./quiz_schema.json",
+  "videoConfig": {
+    "source": "\"C:\\Users\\micah\\Documents\\Courses\\PS303\\New video\\ps303w1.mp4\"",
+    "startOffset": 0,
+    "endPadding": 5
+  },
+  "quizSchedule": [
+    {
+      "time": 20,
+      "quizId": 1,
+      "title": "R setup",
+      "description": "Setup R"
+    },
+    {
+      "time": 193,
+      "quizId": 2,
+      "title": "Operator sequence",
+      "description": "Sequence of operations"
+    },
+    {
+      "time": 833,
+      "quizId": 3,
+      "title": "Indexing operations",
+      "description": "Indexing operations"
+    },
+    {
+      "time": 1262,
+      "quizId": 4,
+      "title": "Lab Activity 1",
+      "description": "Lab Activity 1"
+    }
+  ],
+  "quizzes": {
+    "1": {
+      "title": "R setup",
+      "description": "Setup R",
+      "present_items": "ALL",
+      "timeLimit": 300,
+      "questions": [
+        {
+          "id": "1.1",
+          "question": "You will need to setup R and R studio to complete the excercises in this lecture. The instructions to setup R can be found on your Moodle page. In addition, there is a web version of R you can directly access without any downloads or registration. This link is also available on Moodle. Once you have done so, type in \"Yes\" below and submit the quiz results to continue",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "2": {
+      "title": "Operator sequence",
+      "description": "Sequence of operations",
+      "present_items": "ALL",
+      "timeLimit": 300,
+      "questions": [
+        {
+          "id": "2.1",
+          "question": "What would be the outcome following: 3 + 2 * 5 ",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "12",
+            "13",
+            "30",
+            "25"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.2",
+          "question": "What would be the outcome following: (3 + 2) * 5 ",
+          "type": "multipleChoice",
+          "correctAnswer": "d",
+          "points": 2,
+          "options": [
+            "12",
+            "13",
+            "30",
+            "25"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "3": {
+      "title": "Indexing operations",
+      "description": "Indexing operations",
+      "present_items": "ALL",
+      "timeLimit": 180,
+      "questions": [
+        {
+          "id": "3.1",
+          "question": "What is the third-position value of the vector 'b1'?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.2",
+          "question": "Indexing the first value of 'b1'",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "b1[\"1\"]",
+            " b1[1]",
+            " b1$1",
+            " b1.1"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "4": {
+      "title": "Lab Activity 1",
+      "description": "Lab Activity 1",
+      "present_items": "ALL",
+      "timeLimit": 1800,
+      "questions": [
+        {
+          "id": "4.1",
+          "question": "Type in the code for creating the 'm.ages' variable",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.2",
+          "question": "Type in the code for creating the 'f.ages' variable",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.3",
+          "question": "Provide the values of 'total.ages' (this should be a vector)",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.4",
+          "question": "Provide the code for identifying values less than 36 in 'total.ages'.",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.5",
+          "question": "Which is the correct code for finding out whether 'm.ages' is smaller than 'f.ages'?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "m.ages<f.ages",
+            "m.ages>f.ages",
+            "m.ages<=f.ages",
+            "m.ages>=f.ages"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    }
+  }
+}

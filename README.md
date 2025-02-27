@@ -61,3 +61,28 @@ Use `question_bank.json` template:
 2. Edit directly in form (optional)
 3. Generate files
 4. Open generated_video_quiz.html
+
+# Quiz Results Processor
+
+This tool processes JSON quiz result files and converts them to a CSV format that's easier for instructors to review.
+
+## Features
+
+- Processes multiple JSON quiz result files
+- Identifies different question types (multiple choice, true/false, short answer)
+- Exports results to CSV format
+- Works with different quiz formats
+- **New:** Graphical user interface for easier operation
+- **New:** Select multiple files or an entire folder
+- **New:** Customizable output location
+
+## Requirements
+
+- Python 3.6 or higher
+- tkinter (usually included with Python)
+
+## Usage
+
+### GUI Mode (Recommended)
+
+Run the script with GUI mode:
