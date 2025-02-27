@@ -24,7 +24,7 @@ Use `question_bank.json` template:
 ```json
 {
   "videoConfig": {
-    "source": "PS203/PS203 Week 2.mp4"
+    "source": "Course/Course_vid.mp4"
   },
   "quizSchedule": [
     {
@@ -34,7 +34,7 @@ Use `question_bank.json` template:
   ],
   "quizzes": {
     "q1": {
-      "title": "Week 2 Quiz",
+      "title": "Course Quiz",
       "present_items": 5,
       "questions": [
         {
@@ -75,7 +75,8 @@ This tool processes JSON quiz result files and converts them to a CSV format tha
 - Graphical user interface for easier operation
 - Select multiple files or an entire folder
 - Customizable output location
-- **New:** Student ID to Course mapping functionality
+- Student ID to Course mapping functionality
+- **New:** Test bank mapping for complete question details
 
 ## Requirements
 
