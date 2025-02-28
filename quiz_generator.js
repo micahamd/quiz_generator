@@ -97,26 +97,59 @@ async function initializeQuiz() {
 function initEventListeners() {
     submitButton.addEventListener('click', saveResults);
     
-    video.addEventListener('play', () => {
-        if (state.videoPaused) video.pause();
-    });
-    
-    video.addEventListener('timeupdate', handleVideoProgress);
+    // Handle different video source types
+    if (state.quizData.metadata.videoSourceType === 'youtube') {
+        // YouTube video events are handled through the YouTube API
+        // Use interval for time tracking since timeupdate events aren't available
+        setInterval(handleVideoProgress, 500);
+    } else {
+        // Standard HTML5 video
+        video.addEventListener('play', () => {
+            if (state.videoPaused) video.pause();
+        });
+        video.addEventListener('timeupdate', handleVideoProgress);
+    }
+}
+
+function getCurrentTime() {
+    if (state.quizData.metadata.videoSourceType === 'youtube') {
+        return player ? player.getCurrentTime() : 0;
+    } else {
+        return video ? video.currentTime : 0;
+    }
+}
+
+function pauseVideo() {
+    if (state.quizData.metadata.videoSourceType === 'youtube') {
+        if (player) player.pauseVideo();
+    } else {
+        if (video) video.pause();
+    }
+}
+
+function playVideo() {
+    if (state.quizData.metadata.videoSourceType === 'youtube') {
+        if (player) player.playVideo();
+    } else {
+        if (video) video.play();
+    }
 }
 
 function handleVideoProgress() {
     if (!state.quizData) return;
     
+    const currentTime = getCurrentTime();
+    
     for (const schedule of state.quizData.quizSchedule) {
         const quiz = state.quizData.quizzes[schedule.quizId];
-        if (video.currentTime >= schedule.time && !quiz.submitted) {
+        if (currentTime >= schedule.time && !quiz.submitted) {
             renderQuiz(schedule.quizId);
             return;
         }
     }
     
     // Show final submit button if all quizzes completed
-    if (video.currentTime >= state.quizData.quizSchedule[state.quizData.quizSchedule.length - 1].time) {
+    if (currentTime >= state.quizData.quizSchedule[state.quizData.quizSchedule.length - 1].time) {
         const allCompleted = state.quizData.quizSchedule.every(
             schedule => state.quizData.quizzes[schedule.quizId].submitted
         );
@@ -132,7 +165,7 @@ function renderQuiz(quizId) {
     
     state.currentQuiz = quizId;
     state.videoPaused = true;
-    video.pause();
+    pauseVideo();
     
     const quizElement = document.getElementById(\`quiz-\${quizId}\`);
     quizContainer.style.display = 'block';
@@ -274,7 +307,7 @@ function checkAnswers(quizId, questions) {
     quiz.submitted = true;
     document.getElementById(\`quiz-\${quizId}\`).style.display = 'none';
     state.videoPaused = false;
-    video.play();
+    playVideo();
     
     updateProgress();
 }
@@ -312,6 +345,15 @@ document.addEventListener('DOMContentLoaded', initializeQuiz);
 function populateFormFromJson(json) {
     // Set basic video info
     document.getElementById('videoSource').value = json.videoConfig.source;
+    
+    // Set the correct video source type radio button
+    if (json.metadata && json.metadata.videoSourceType === 'youtube') {
+        document.getElementById('youtubeSource').checked = true;
+    } else {
+        document.getElementById('filePathSource').checked = true;
+    }
+    updateSourceHelp();
+    
     document.getElementById('quizCount').value = json.quizSchedule.length;
     
     // Create quiz sections
@@ -323,7 +365,7 @@ function populateFormFromJson(json) {
         const quizElem = document.getElementById(`quizTime${quizId}`);
         const quiz = json.quizzes[schedule.quizId];
         if (quizElem) {
-            quizElem.value = quiz.timestamp;
+            quizElem.value = schedule.time; // Use time from schedule
             document.getElementById(`quizTitle${quizId}`).value = quiz.title;
             document.getElementById(`quizDesc${quizId}`).value = quiz.description;
             document.getElementById(`presentItems${quizId}`).value = quiz.present_items;
@@ -370,17 +412,65 @@ function downloadFile(filename, content) {
     URL.revokeObjectURL(url);
 }
 
+// Helper functions for video source handling
+function getVideoSourceType() {
+    return document.querySelector('input[name="videoSourceType"]:checked').value;
+}
+
+function extractYouTubeId(url) {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+}
+
+function updateSourceHelp() {
+    const sourceType = getVideoSourceType();
+    const helpText = document.getElementById('videoSourceHelp');
+    
+    if (sourceType === 'youtube') {
+        helpText.textContent = 'Enter a YouTube URL (e.g., https://www.youtube.com/watch?v=VIDEOID)';
+    } else {
+        helpText.textContent = 'Enter the path to your video file (e.g., videos/lecture.mp4)';
+    }
+}
+
 // Main function to generate quiz files
-// Global variable for student IDs (as in the original)
+// Global variable for student IDs
 let validStudentIds = null;
 
 function generateFiles() {
     // Collect basic info
     const videoSource = document.getElementById('videoSource').value.trim();
-    const sanitizedVideoSource = videoSource.replace(/["']/g, '');
+    const sourceType = getVideoSourceType();
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
+    
+    // Process video source based on type
+    let processedSource, embedCode;
+    
+    if (sourceType === 'youtube') {
+        const youtubeId = extractYouTubeId(videoSource);
+        if (!youtubeId) {
+            alert('Invalid YouTube URL. Please enter a valid YouTube video URL.');
+            return;
+        }
+        processedSource = youtubeId;
+        embedCode = `<div class="youtube-container">
+                        <iframe id="myVideo"
+                        src="https://www.youtube.com/embed/${youtubeId}?enablejsapi=1" 
+                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; 
+                        encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                        </iframe>
+                     </div>`;
+    } else {
+        // Regular file path
+        processedSource = videoSource.replace(/["']/g, '');
+        embedCode = `<video id="myVideo" controls aria-label="Lecture content">
+                    <source src="${processedSource}" type="video/mp4">
+                    <p>Your browser does not support the video tag.</p>
+                </video>`;
+    }
 
-    // Add Student IDs handling (using global validStudentIds)
+    // Add Student IDs handling
     const idFileInput = document.getElementById('idFile');
     if (idFileInput && idFileInput.files.length > 0) {
         const file = idFileInput.files[0];
@@ -396,13 +486,13 @@ function generateFiles() {
         }
     }
 
-    // Build quiz data structure (using 'i' as key, as in original)
+    // Build quiz data structure
     const quizSchedule = [];
     const quizzes = {};
 
     for (let i = 1; i <= quizCount; i++) {
         const time = parseInt(document.getElementById(`quizTime${i}`).value, 10) || 0;
-        const quizId = i; // Use 'i' directly as quizId (number), as in original
+        const quizId = i; // Use 'i' directly as quizId
         const title = document.getElementById(`quizTitle${i}`).value;
         const description = document.getElementById(`quizDesc${i}`).value;
         // Modified conversion for present_items:
@@ -411,7 +501,7 @@ function generateFiles() {
         const timeLimit = parseInt(document.getElementById(`timeLimit${i}`).value, 10) || 180;
 
         quizSchedule.push({ time, quizId, title, description });
-        quizzes[i] = { // Use 'i' as key for quizzes object, as in original
+        quizzes[i] = {
             title: title,
             description: description,
             present_items: presentItems,
@@ -419,7 +509,7 @@ function generateFiles() {
             questions: []
         };
 
-        // Question gathering logic remains the same (using 'i' for quizId in question IDs)
+        // Question gathering logic
         const questionCount = parseInt(document.getElementById(`questionCount${i}`).value, 10) || 0;
         for (let q = 1; q <= questionCount; q++) {
             const questionText = document.getElementById(`qText${i}-${q}`).value;
@@ -441,7 +531,7 @@ function generateFiles() {
                     break;
             }
 
-            quizzes[i].questions.push({ // Use 'i' for quizId in question IDs, as in original
+            quizzes[i].questions.push({
                 id: `${i}.${q}`,
                 question: questionText,
                 type: questionType,
@@ -456,7 +546,7 @@ function generateFiles() {
         }
     }
 
-    // Add PHP toggle handling (using ternary operator and robust regex)
+    // Add PHP toggle handling
     const saveResultsViaPhp = document.getElementById('togglePhpResults')?.checked || false;
 
     let saveResultsFunctionCode;
@@ -526,7 +616,6 @@ function generateFiles() {
         }`;
     }
 
-
     // Generate final JS
     const generatedJs = `
     // filepath: generated_video_quiz.js
@@ -537,15 +626,41 @@ function generateFiles() {
             "version": "1.0.0",
             "totalQuizzes": ${quizCount},
             "validStudentIds": ${validStudentIds ? JSON.stringify(validStudentIds.map(id => id.replace(/[\r\n]+/g, '').trim())) : null},
-            "passingScore": 70
+            "passingScore": 70,
+            "videoSourceType": "${sourceType}" // Store the video source type
         },
         "quizSchedule": ${JSON.stringify(quizSchedule)},
         "quizzes": ${JSON.stringify(quizzes, null, 2)}
     };
 
+    ${sourceType === 'youtube' ? `
+    // Load YouTube API
+    let player;
+    function onYouTubeIframeAPIReady() {
+        player = new YT.Player('myVideo', {
+            events: {
+                'onStateChange': onPlayerStateChange,
+                'onReady': onPlayerReady
+            }
+        });
+    }
+
+    function onPlayerReady(event) {
+        // Initialization after player is ready
+        initializeQuiz();
+    }
+
+    function onPlayerStateChange(event) {
+        // Monitor player state
+        if (event.data === YT.PlayerState.PLAYING && state.videoPaused) {
+            player.pauseVideo();
+        }
+    }
+    ` : ''}
+
     ${quizImplementation.replace(/function saveResults\(\)[\s\S]*?^}(?=\n*\/\/ Initialize)/m, saveResultsFunctionCode)}`;
 
-    // Generate final HTML (remains unchanged - using backticks for template literal consistency)
+    // Generate final HTML (remove the YouTube-specific CSS link)
     const generatedHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -554,15 +669,13 @@ function generateFiles() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Video with Quiz</title>
         <link rel="stylesheet" href="video_with_quiz.css">
+        ${sourceType === 'youtube' ? '<script src="https://www.youtube.com/iframe_api"></script>' : ''}
     </head>
     <body>
         <main>
             <!-- Video Section -->
             <section class="video-container" aria-label="Lecture Video">
-                <video id="myVideo" controls aria-label="Lecture content">
-                    <source src="${sanitizedVideoSource}" type="video/mp4">
-                    <p>Your browser does not support the video tag.</p>
-                </video>
+                ${embedCode}
             </section>
 
             <!-- Quiz Section -->
@@ -588,25 +701,22 @@ function generateFiles() {
             </section>
         </main>
 
-        <!-- Error Message Template -->
+        <!-- Templates -->
         <template id="error-template">
             <div class="error-message" role="alert">
                 <p></p>
             </div>
         </template>
 
-        <!-- Question Feedback Template -->
         <template id="feedback-template">
             <div class="feedback" role="alert">
                 <p></p>
             </div>
         </template>
-
         <script src="generated_video_quiz.js" defer></script>
     </body>
     </html>
     `;
-
 
     // Create downloadable files
     downloadFile('generated_video_quiz.js', generatedJs);
@@ -622,7 +732,6 @@ async function handleJsonConfigUpload(event) {
     
     try {
         const config = JSON.parse(await file.text());
-        
         // Clean and validate JSON structure
         if (!config.videoConfig?.source) {
             throw new Error('Missing videoConfig.source in JSON');
@@ -640,7 +749,7 @@ async function handleJsonConfigUpload(event) {
                 id.replace(/[\r\n]+/g, '').trim()
             );
         }
-        
+
         populateFormFromJson(config);
         status.textContent = "Config loaded successfully!";
         status.style.color = 'green';
@@ -672,10 +781,10 @@ function exportJsonFile() {
             title,
             description,
             present_items: presentItems,
-            timeLimit: timeLimit,
+            timeLimit,
             questions: []
         };
-        
+
         // Gather questions
         const questionCount = parseInt(document.getElementById(`questionCount${i}`).value, 10) || 0;
         for (let q = 1; q <= questionCount; q++) {
@@ -684,7 +793,7 @@ function exportJsonFile() {
             const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
             let correctAnswer = '';
             let options = [];
-            
+
             switch (questionType) {
                 case 'multipleChoice':
                     options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
@@ -697,7 +806,7 @@ function exportJsonFile() {
                     correctAnswer = 'true'; // Placeholder
                     break;
             }
-            
+
             quizzes[i].questions.push({
                 id: `${i}.${q}`,
                 question: questionText,
@@ -795,7 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateQuizFieldsButton.addEventListener('click', () => {
         const quizCount = parseInt(document.getElementById('quizCount').value);
         quizzesContainer.innerHTML = ''; // Clear existing fields
-        
+
         for (let i = 1; i <= quizCount; i++) {
             const quizSection = document.createElement('div');
             quizSection.classList.add('quiz-section');
@@ -928,4 +1037,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const exportJsonBtn = document.getElementById('exportJsonBtn');
     exportJsonBtn.addEventListener('click', exportJsonFile);
+
+    // Update event listeners to change help text based on selected source type
+    document.getElementById('filePathSource').addEventListener('change', updateSourceHelp);
+    document.getElementById('youtubeSource').addEventListener('change', updateSourceHelp);
 });
+
+function getVideoSourceType() {
+    return document.querySelector('input[name="videoSourceType"]:checked').value;
+}
+
+function extractYouTubeId(url) {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+}
+
+function updateSourceHelp() {
+    const sourceType = getVideoSourceType();
+    const helpText = document.getElementById('videoSourceHelp');
+    
+    if (sourceType === 'youtube') {
+        helpText.textContent = 'Enter a YouTube URL (e.g., https://www.youtube.com/watch?v=VIDEOID)';
+    } else {
+        helpText.textContent = 'Enter the path to your video file (e.g., videos/lecture.mp4)';
+    }
+}

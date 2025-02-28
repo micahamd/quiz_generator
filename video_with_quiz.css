@@ -38,8 +38,35 @@ main {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     overflow: hidden;
+    
+    /* For YouTube videos (as container) */
+    position: relative;
 }
 
+/* YouTube-specific responsive container */
+.youtube-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    width: 100%;
+    background: #000; /* Dark background for letterboxing */
+    border-radius: var(--border-radius);
+}
+
+/* YouTube iframe styling */
+.youtube-container iframe#myVideo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-shadow: none;
+    display: block;
+}
+
+/* Regular video styling */
 #myVideo {
     width: 100%;
     max-width: 800px; /* Increased max video width */
@@ -223,6 +250,21 @@ button:disabled {
 
      #quiz-container {
       padding: 10px;
+    }
+}
+
+/* Enhanced responsive styling for videos */
+@media (min-width: 768px) {
+    .youtube-container {
+        max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 1200px) {
+    .youtube-container {
+        max-width: 80%;
     }
 }
 

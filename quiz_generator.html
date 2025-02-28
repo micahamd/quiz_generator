@@ -53,8 +53,16 @@
 <body>
     <form id="quizGeneratorForm">
         <div>
-            <label for="videoSource">Video Source (file path):</label>
-            <input type="text" id="videoSource" required>
+            <label for="videoSource">Video Source:</label>
+            <div>
+                <input type="radio" name="videoSourceType" id="filePathSource" value="filePath" checked>
+                <label for="filePathSource">File Path</label>
+                
+                <input type="radio" name="videoSourceType" id="youtubeSource" value="youtube">
+                <label for="youtubeSource">YouTube URL</label>
+            </div>
+            <input type="text" id="videoSource" placeholder="Enter file path or YouTube URL" required>
+            <div id="videoSourceHelp" class="form-help">Enter the path to your video file (e.g., videos/lecture.mp4)</div>
         </div>
 
         <div>
