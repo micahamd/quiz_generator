@@ -1,12 +1,30 @@
-/PS203
+/test_bank
+/new_quizzes
 /old_files
 /quiz_paper
 /ils_tutorial
-generated_video_quiz.html
-generated_video_quiz.js
-video_compressor.py
-output.mp4
-save_results_php.txt
-video_with_quiz.html
-video_with_quiz.js
+
+ps203_id_list.txt
+ps303_id_list.txt
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+
+# Generated files
+generated_video_quiz.*
+*_s*.json
+quiz_processor_data.pkl
+
+# Other
+.DS_Store
 
