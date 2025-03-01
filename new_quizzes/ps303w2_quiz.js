@@ -1,32 +1,51 @@
 
-    // filepath: p203w1_quiz.js
+    // filepath: ps303w2_quiz.js
     const quizData = {
         "metadata": {
             "title": "Generated Quiz",
             "description": "Auto-generated!",
             "version": "1.0.0",
-            "totalQuizzes": 10,
-            "validStudentIds": ["s11134827","s11035271","s11229588","s11212031","s11131885","s11229807","s11187868","s11215280","s11206579","s11171179","s11215737","s11237148","s11231080","s11170671","s11223584","s11209474","s11208835","s11248151","s11211396","s11159428","s11174833","s11224295","s11101129","s11025749","s11207386","s11178935","s11188067","s11220336","s11220638","s11211556","s11223163","s11214230","s11159048","s11198905","s11177229","s11232672","s11236003","s11195087","s11051847","s11081192","s11220387","s11132040","s11195001","s96000912","s11205154","s11174125","s11221019","s11136072","s11221603","s11190362","s11223548","s97005061","s11233043","s11230323","s11232155","s11229046","s11155406","s11220962","s11174423","s11053566","s11174705","s11054793","s11230480","s11210061","s11239811","s11182584","s11233884","s11230221","s11220249","s11139488","s11231129","s11220267","s11199747","s11109509","s11135066","s11199507","s11177123","s11207758","s11133268","s11208999","s11210348","s11205595","s11233769","s11162229","s11229580","s11169356","s11232673","s11220488","s11222663","s11223299","s11234528","s11098774","s11131962","s11232178","s11199217","s11200875","s11186264","s11128906","s11117528","s11040024","s11231615","s11231551","s1"],
+            "totalQuizzes": 3,
+            "validStudentIds": ["s89507500","s11160686","s11210497","s11219251","s11029471","s11198814","s11198882","s11216858","s11172530","s11205002","s11079167","s11182099","s11202145","s11180038","s11067836","s11221838","s11220590","s11157731","s11121597","s11133050","s11208754","s11184368","s11188325","s11167932","s11196450","s11173879","s11057414","s11221103","s11177107","s11210637","s11126758","s11026561","s11046495","s11190077","s11220202","s11206894","s11193242","s11174993","s11213428","s11200051","s11086886","s11182443","s11173436","s11041024","s11211388","s11035592","s11115827","s11210295","s11203617","s11177932","s11208914","s11211217","s11211173","s11219935","s11214354","s11212818","s11163657","s11069337","s11175413","s11197621","s11177301","s11005178","s11209952","s1"],
             "passingScore": 70,
             "videoSourceType": "filePath" // Store the video source type
         },
-        "quizSchedule": [{"time":40,"quizId":1,"title":"Reading Check","description":"Reading Check"},{"time":216,"quizId":2,"title":"Improving the Study","description":"Critical Analysis of Mehl"},{"time":338,"quizId":3,"title":"Understanding Intuition","description":"Understanding Intuition"},{"time":440,"quizId":4,"title":"Imagining elephants","description":"Imagining elephants"},{"time":706,"quizId":5,"title":"Back to Mehl","description":"Back to Mehl"},{"time":907,"quizId":6,"title":"Homeopathy","description":"Homeopathy "},{"time":927,"quizId":7,"title":"Defining science","description":"Definingscience"},{"time":1103,"quizId":8,"title":"Applied to John","description":"Applied to John"},{"time":1152,"quizId":9,"title":"Reducing Littering","description":"Reducing Littering"},{"time":1406,"quizId":10,"title":"Obesity reduction","description":"What reduces obesity?"}],
+        "quizSchedule": [{"time":567,"quizId":1,"title":"First Quiz","description":"first quiz"},{"time":1492,"quizId":2,"title":"Second Quiz","description":"Second Quiz"},{"time":2331,"quizId":3,"title":"Lab Activity","description":"Lab Activity"}],
         "quizzes": {
   "1": {
-    "title": "Reading Check",
-    "description": "Reading Check",
+    "title": "First Quiz",
+    "description": "first quiz",
     "present_items": "ALL",
-    "timeLimit": 180,
+    "timeLimit": 6000,
     "questions": [
       {
         "id": "1.1",
-        "question": "Have you read the materials for this week?",
+        "question": "Create four vectors in R: one character vector named `faculties` containing the faculty names \"FAS\", \"FALE\", \"FBE\", and \"FTE\"; and three numeric vectors named `enroll2015`, `enroll2016`, and `enroll2017` containing the enrollment numbers 421, 532, 643, and 754 respectively. Then, combine these vectors into a data frame named `my_data` with `faculties` as the first column. Visualize the dataframe in R by typing in 'my_data' in the console and pressing Enter. Finally, display the resulting data frame. What was the enrollment for FALE in 2016, according to the dataframe? ",
         "type": "multipleChoice",
         "correctAnswer": "a",
-        "points": 1,
+        "points": 2,
         "options": [
-          "Yes",
-          " No"
+          "532",
+          "421",
+          "643",
+          "537"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "1.2",
+        "question": "What does `cbind` stand for in `cbind.data.frame()`?",
+        "type": "multipleChoice",
+        "correctAnswer": "d",
+        "points": 2,
+        "options": [
+          "Complex bind",
+          " Character bind",
+          " Combine bind",
+          " Column bind"
         ],
         "feedback": {
           "correct": "Correct!",
@@ -36,17 +55,17 @@
     ]
   },
   "2": {
-    "title": "Improving the Study",
-    "description": "Critical Analysis of Mehl",
+    "title": "Second Quiz",
+    "description": "Second Quiz",
     "present_items": "ALL",
-    "timeLimit": 180,
+    "timeLimit": 6000,
     "questions": [
       {
         "id": "2.1",
-        "question": "Which group spoke more words on average?",
+        "question": "Assuming `mydf` is a data frame with columns `Schools`, `2015`, `2016`, and `2017` representing student enrollment, write the R code to calculate the total number of students enrolled in the FBE faculty across all years.",
         "type": "shortAnswer",
         "correctAnswer": "true",
-        "points": 1,
+        "points": 5,
         "options": [],
         "feedback": {
           "correct": "Correct!",
@@ -55,55 +74,78 @@
       },
       {
         "id": "2.2",
-        "question": "How could Mehl's design be improved?",
+        "question": "The lecture mentions using backticks when column names are numeric.  Provide an example of R code that would calculate the sum of the column named \"2017\" in the data frame `mydf`.",
         "type": "shortAnswer",
         "correctAnswer": "true",
-        "points": 2,
+        "points": 5,
         "options": [],
         "feedback": {
           "correct": "Correct!",
           "incorrect": "Incorrect."
         }
-      }
-    ]
-  },
-  "3": {
-    "title": "Understanding Intuition",
-    "description": "Understanding Intuition",
-    "present_items": "ALL",
-    "timeLimit": 300,
-    "questions": [
+      },
       {
-        "id": "3.1",
-        "question": "Describe an example from your life which utilized the type of knowledge just spoken about in the lecture.",
-        "type": "shortAnswer",
-        "correctAnswer": "true",
-        "points": 3,
-        "options": [],
-        "feedback": {
-          "correct": "Correct!",
-          "incorrect": "Incorrect."
-        }
-      }
-    ]
-  },
-  "4": {
-    "title": "Imagining elephants",
-    "description": "Imagining elephants",
-    "present_items": "ALL",
-    "timeLimit": 180,
-    "questions": [
-      {
-        "id": "4.1",
-        "question": "If you have neither seen a grey or blue elephant, but can vividly imagine either, which of these are 'more real' according to the lecture?",
+        "id": "2.3",
+        "question": "What R function could you use to get a quick overview of the descriptive statistics (min, max, mean, median, quartiles) for your data frame `mydf`?",
         "type": "multipleChoice",
-        "correctAnswer": "c",
+        "correctAnswer": "b",
         "points": 2,
         "options": [
-          "Blue elephant",
-          " Grey elephant",
-          " Both are equally real",
-          " None are real"
+          "summary.mydf",
+          " summary(mydf)",
+          " summary[mydf]",
+          " summary_mydf)"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "2.4",
+        "question": "The `$` operator in R is primarily used for:",
+        "type": "multipleChoice",
+        "correctAnswer": "b",
+        "points": 2,
+        "options": [
+          "Performing calculations on entire columns",
+          " Accessing specific columns within a data frame",
+          " Creating new variables",
+          " Indexing rows in a data frame"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "2.5",
+        "question": "Which function is used to determine the structure of a data frame in R?",
+        "type": "multipleChoice",
+        "correctAnswer": "b",
+        "points": 2,
+        "options": [
+          "structure()",
+          " str()",
+          " summary()",
+          " typeof()"
+        ],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "2.6",
+        "question": "In R, when indexing a data frame `mydf[x, y]`, what do `x` and `y` represent?",
+        "type": "multipleChoice",
+        "correctAnswer": "b",
+        "points": 2,
+        "options": [
+          "`x` represents columns and `y` represents rows",
+          " `x` represents rows and `y` represents columns",
+          " Both `x` and `y` represent rows",
+          " Both `x` and `y` represent columns"
         ],
         "feedback": {
           "correct": "Correct!",
@@ -112,35 +154,27 @@
       }
     ]
   },
-  "5": {
-    "title": "Back to Mehl",
-    "description": "Back to Mehl",
+  "3": {
+    "title": "Lab Activity",
+    "description": "Lab Activity",
     "present_items": "ALL",
-    "timeLimit": 180,
+    "timeLimit": 30000,
     "questions": [
       {
-        "id": "5.1",
-        "question": "How might the Mehl study be improved further?",
+        "id": "3.1",
+        "question": "Provide the raw code for setting up each numeric vector. Each line of code should be separated by a double colon (::) in your response.",
         "type": "shortAnswer",
         "correctAnswer": "true",
-        "points": 3,
+        "points": 4,
         "options": [],
         "feedback": {
           "correct": "Correct!",
           "incorrect": "Incorrect."
         }
-      }
-    ]
-  },
-  "6": {
-    "title": "Homeopathy",
-    "description": "Homeopathy ",
-    "present_items": "ALL",
-    "timeLimit": 300,
-    "questions": [
+      },
       {
-        "id": "6.1",
-        "question": "How might homeopathy make someone 'feel better'?",
+        "id": "3.2",
+        "question": "Provide the code for setting up the factorial variable.",
         "type": "shortAnswer",
         "correctAnswer": "true",
         "points": 5,
@@ -149,81 +183,49 @@
           "correct": "Correct!",
           "incorrect": "Incorrect."
         }
-      }
-    ]
-  },
-  "7": {
-    "title": "Defining science",
-    "description": "Definingscience",
-    "present_items": "ALL",
-    "timeLimit": 180,
-    "questions": [
+      },
       {
-        "id": "7.1",
-        "question": "What does science involve?",
+        "id": "3.3",
+        "question": "Provide the raw code for combining the three vectors into a dataframe called 'my.df'",
         "type": "shortAnswer",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "3.4",
+        "question": "Provide the raw code for the specific boxplot described.",
+        "type": "shortAnswer",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "3.5",
+        "question": "Provide the raw code for the specific boxplot described (with a BLUE border and a YELLOW background).",
+        "type": "shortAnswer",
+        "correctAnswer": "true",
+        "points": 5,
+        "options": [],
+        "feedback": {
+          "correct": "Correct!",
+          "incorrect": "Incorrect."
+        }
+      },
+      {
+        "id": "3.6",
+        "question": "The average number of deaths (across all causes) has increased from 2018 to 2020 ",
+        "type": "trueFalse",
         "correctAnswer": "true",
         "points": 2,
-        "options": [],
-        "feedback": {
-          "correct": "Correct!",
-          "incorrect": "Incorrect."
-        }
-      }
-    ]
-  },
-  "8": {
-    "title": "Applied to John",
-    "description": "Applied to John",
-    "present_items": "ALL",
-    "timeLimit": 180,
-    "questions": [
-      {
-        "id": "8.1",
-        "question": "Think of another way you could stop John's behavior. Be imaginative! How is this issue solved in your community?",
-        "type": "shortAnswer",
-        "correctAnswer": "true",
-        "points": 3,
-        "options": [],
-        "feedback": {
-          "correct": "Correct!",
-          "incorrect": "Incorrect."
-        }
-      }
-    ]
-  },
-  "9": {
-    "title": "Reducing Littering",
-    "description": "Reducing Littering",
-    "present_items": "ALL",
-    "timeLimit": 300,
-    "questions": [
-      {
-        "id": "9.1",
-        "question": "What might be a socially beneficial consequence of having 'more neurotic females' in society, as discussed in the lecture?",
-        "type": "shortAnswer",
-        "correctAnswer": "true",
-        "points": 3,
-        "options": [],
-        "feedback": {
-          "correct": "Correct!",
-          "incorrect": "Incorrect."
-        }
-      }
-    ]
-  },
-  "10": {
-    "title": "Obesity reduction",
-    "description": "What reduces obesity?",
-    "present_items": "ALL",
-    "timeLimit": 180,
-    "questions": [
-      {
-        "id": "10.1",
-        "question": "What is wrong with the statement \"obesity is not affected by reduced calorie diets\"?",
-        "type": "shortAnswer",
-        "correctAnswer": "true",
-        "points": 5,
         "options": [],
         "feedback": {
           "correct": "Correct!",
