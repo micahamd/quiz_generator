@@ -17,11 +17,13 @@ dist/
 build/
 *.egg-info/
 
-# Virtual environments
-venv/
+# PHP script
+save_results.php
+
 
 # Generated files
-generated_video_quiz.*
+*_s*.html
+*_s*.js
 *_s*.json
 quiz_processor_data.pkl
 

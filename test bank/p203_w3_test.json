@@ -1,0 +1,239 @@
+{
+  "$schema": "./quiz_schema.json",
+  "videoConfig": {
+    "source": "\"C:\\Users\\micah\\Documents\\Courses\\PS203\\p203_w3.mp4\"",
+    "startOffset": 0,
+    "endPadding": 5
+  },
+  "quizSchedule": [
+    {
+      "time": 352,
+      "quizId": 1,
+      "title": "First Quiz",
+      "description": "first quiz"
+    },
+    {
+      "time": 647,
+      "quizId": 2,
+      "title": "Second Quiz",
+      "description": "Second Quiz"
+    },
+    {
+      "time": 1140,
+      "quizId": 3,
+      "title": "Final Quiz",
+      "description": "Final Quiz"
+    }
+  ],
+  "quizzes": {
+    "1": {
+      "title": "First Quiz",
+      "description": "first quiz",
+      "present_items": "ALL",
+      "timeLimit": 180,
+      "questions": [
+        {
+          "id": "1.1",
+          "question": "What is a key ethical considerations for ensuring participant safety and well-being in psychological research?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "Obtaining informed consent from participants",
+            " Designing complex experimental shapes",
+            " Publishing results quickly",
+            " Avoiding harm at all cost"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.2",
+          "question": "Procedures involving deception or withholding information should never be used, even if there is a compelling reason to do so",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.3",
+          "question": "Ethical considerations in psychological research do not impact the credibility and reputation of the field.",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "2": {
+      "title": "Second Quiz",
+      "description": "Second Quiz",
+      "present_items": "ALL",
+      "timeLimit": 180,
+      "questions": [
+        {
+          "id": "2.1",
+          "question": "In Milgram's obedience study, who was the \"learner\"?",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            " An actual participant from the community",
+            " An actor hired by the researcher who pretended to receive shocks",
+            " A volunteer recruited for the experiment",
+            " The experimenter administering the shocks"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.2",
+          "question": "What was one of the notable findings from Milgram's obedience study?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            " Most participants were hesitant and refused to administer any shocks",
+            " All participants administered the highest level of shock when instructed",
+            "  Many participants continued administering shocks even after believing the \"learner\" had died",
+            " The majority of participants required additional explanation for their actions"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.3",
+          "question": "What does Milgram's study demonstrate about human behavior in relation to authority?",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "People are naturally inclined to question authority figures' instructions",
+            " Humans tend to follow orders from authority figures without questioning them",
+            " as seen in experiments with obedience",
+            " Authority has little influence over individual actions and decisions",
+            " Participants always doubt the authenticity of shocks administered by authority"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "3": {
+      "title": "Final Quiz",
+      "description": "Final Quiz",
+      "present_items": "ALL",
+      "timeLimit": 420,
+      "questions": [
+        {
+          "id": "3.1",
+          "question": "Which document declared ten principles for medical research, including informed consent, non-coercion, and respect for persons?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "Nuremberg Code",
+            " Declaration of Minsk",
+            " Belmont Report",
+            " American Psychological Association"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.2",
+          "question": "Which body developed the Declaration of Helsinki in 1964?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "Nuremberg Trials Committee",
+            " World Medical Association",
+            "  National Commission for the Protection of Human Subjects",
+            " American Psychological Association "
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.3",
+          "question": "What does the principle of beneficence aim to achieve in research?",
+          "type": "multipleChoice",
+          "correctAnswer": "d",
+          "points": 2,
+          "options": [
+            " Maximizing potential harm to participants",
+            " Ensuring participant comfort and well-being",
+            " Guaranteeing that all participants receive equal treatment",
+            " Maximizing benefits to the community while minimizing risks to the participant "
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.4",
+          "question": "Describe a key component of an informed consent form.",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 5,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.5",
+          "question": "Why might you screen participants for certain conditions before starting a study involving visual tasks? Think carefully before responding.",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 5,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.6",
+          "question": "Which of the following is NOT one of the basic ethical principles outlined in the Belmont Report?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "Respect for persons",
+            " beneficence",
+            " profitability",
+            " non-maleficence"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    }
+  }
+}

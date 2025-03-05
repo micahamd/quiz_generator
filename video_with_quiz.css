@@ -30,29 +30,32 @@ main {
   padding-bottom: var(--spacing-unit);
 }
 
-/* Video container */
+/* Enhanced Video container with stronger rules */
 .video-container {
     margin-bottom: var(--spacing-unit);
     background: white;
-    padding: var(--spacing-unit);
+    padding: 10px; /* Reduced padding to maximize video space */
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     overflow: hidden;
+    width: 100% !important;
+    max-width: 1200px !important; /* Increased maximum width */
+    margin: 0 auto 20px;
     
-    /* For YouTube videos (as container) */
+    /* For better display of YouTube videos */
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* YouTube-specific responsive container */
+/* YouTube-specific responsive container - more aggressive sizing */
 .youtube-container {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 aspect ratio */
     height: 0;
     overflow: hidden;
-    width: 100%;
-    max-width: 800px; /* Match the regular video max-width */
-    background: #000; /* Dark background for letterboxing */
-    border-radius: var(--border-radius);
+    width: 100% !important; /* Force full width */
     box-shadow: var(--box-shadow); /* Add the same box-shadow as regular videos */
     margin: 0 auto; /* Center the container */
 }
@@ -71,7 +74,7 @@ main {
 /* Regular video styling */
 #myVideo {
     width: 100%;
-    max-width: 800px; /* Increased max video width */
+    max-width: 1000px; /* Increased to match YouTube container */
     height: auto;
     display: block;
     margin: 0 auto;
@@ -258,13 +261,17 @@ button:disabled {
 /* Enhanced responsive styling for videos */
 @media (min-width: 768px) {
     .youtube-container {
-        max-width: 800px; /* Match regular video max-width */
+        max-width: 900px; /* Increased for better visibility */
+    }
+    
+    .video-container {
+        padding: calc(var(--spacing-unit)/2);
     }
 }
 
 @media (min-width: 1200px) {
     .youtube-container {
-        max-width: 800px; /* Keep consistent with regular video */
+        max-width: 1000px; /* Larger size for big screens */
     }
 }
 
