@@ -7,6 +7,8 @@ from tkinter import filedialog, ttk, messagebox, simpledialog
 from datetime import datetime
 import threading
 import pickle
+# Import process_quiz_data from quiz_file_organizer
+from quiz_file_organizer import process_quiz_data
 
 def determine_question_type(question_data):
     """Determine the question type based on available fields."""
@@ -307,8 +309,17 @@ class QuizProcessorGUI:
         self.process_button = ttk.Button(buttons_frame, text="Process Files", command=self.process_selected_files)
         self.process_button.grid(row=0, column=0, padx=5)
         
+        # Add checkbox for pre-processing
+        self.preprocess_var = tk.BooleanVar(value=False)
+        self.preprocess_checkbox = ttk.Checkbutton(
+            buttons_frame, 
+            text="Pre-process raw data?", 
+            variable=self.preprocess_var
+        )
+        self.preprocess_checkbox.grid(row=0, column=1, padx=5)
+        
         # Exit button
-        ttk.Button(buttons_frame, text="Exit", command=self.root_destroy).grid(row=0, column=1, padx=5)
+        ttk.Button(buttons_frame, text="Exit", command=self.root_destroy).grid(row=0, column=2, padx=5)
         
         # Progress bar
         progress_frame = ttk.Frame(main_frame, padding="10")
@@ -592,6 +603,26 @@ class QuizProcessorGUI:
                 self.course_mappings if self.course_mappings else None,
                 self.test_banks if self.test_banks else None
             )
+            
+            # Apply additional processing if checkbox is checked
+            if output_file and self.preprocess_var.get():
+                try:
+                    self.status_var.set("Pre-processing data...")
+                    processed_data = process_quiz_data(output_file)
+                    # Replace original file extension with '_processed.csv'
+                    base_path = os.path.splitext(output_file)[0]
+                    processed_output = f"{base_path}_processed.csv"
+                    
+                    # Fill NaN values with "NA" for consistency
+                    processed_data = processed_data.fillna("NA")
+                    processed_data = processed_data.replace("", "NA")
+                    
+                    processed_data.to_csv(processed_output, index=False)
+                    output_file = processed_output  # Update output_file to the processed version
+                    self.status_var.set("Pre-processing complete!")
+                except Exception as e:
+                    print(f"Error during pre-processing: {e}")
+                    self.status_var.set(f"Pre-processing error: {str(e)}")
             
             # Update UI from the main thread
             self.root.after(0, lambda: self.processing_complete(output_file))
