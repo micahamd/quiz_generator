@@ -25,7 +25,6 @@ save_results.php
 *_s*.html
 *_s*.js
 *_s*.json
-quiz_processor_data.pkl
 
 # Other
 .DS_Store
