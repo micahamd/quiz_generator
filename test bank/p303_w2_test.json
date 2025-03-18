@@ -1,7 +1,7 @@
 {
   "$schema": "./quiz_schema.json",
   "videoConfig": {
-    "source": "\"C:\\Users\\micah\\Documents\\Courses\\PS303\\New video\\ps303_w2.mp4\"",
+    "source": "\"../videos/ps303w2.mp4\"",
     "startOffset": 0,
     "endPadding": 5
   },
@@ -30,7 +30,7 @@
       "title": "First Quiz",
       "description": "first quiz",
       "present_items": "ALL",
-      "timeLimit": 6000,
+      "timeLimit": 60000,
       "questions": [
         {
           "id": "1.1",
