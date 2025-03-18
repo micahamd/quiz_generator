@@ -221,7 +221,7 @@ function renderQuestionInputs(question, index, quizId) {
                 <input type="text" 
                     name="q\${quizId}-\${index}"
                     minlength="\${question.validation?.minLength || 0}"
-                    maxlength="\${question.validation?.maxLength || 100}"
+                    maxlength="\${question.validation?.maxLength || 10000}"
                     \${question.validation?.required ? 'required' : ''}
                 >
             \`;
@@ -517,6 +517,7 @@ function generateFiles() {
             const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
             let correctAnswer = '';
             let options = [];
+            let validation = null;
 
             switch (questionType) {
                 case 'multipleChoice':
@@ -528,10 +529,18 @@ function generateFiles() {
                     break;
                 case 'shortAnswer':
                     correctAnswer = 'true'; // Placeholder
+                    // Add validation object with min and max length
+                    const minLength = parseInt(document.getElementById(`qMinLength${i}-${q}`).value, 10) || 2;
+                    const maxLength = parseInt(document.getElementById(`qMaxLength${i}-${q}`).value, 10) || 10000;
+                    validation = {
+                        minLength: minLength,
+                        maxLength: maxLength,
+                        required: true
+                    };
                     break;
             }
 
-            quizzes[i].questions.push({
+            const questionObj = {
                 id: `${i}.${q}`,
                 question: questionText,
                 type: questionType,
@@ -542,7 +551,14 @@ function generateFiles() {
                     correct: "Correct!",
                     incorrect: "Incorrect."
                 }
-            });
+            };
+
+            // Add validation object if it exists
+            if (validation) {
+                questionObj.validation = validation;
+            }
+
+            quizzes[i].questions.push(questionObj);
         }
     }
 
@@ -793,6 +809,7 @@ function exportJsonFile() {
             const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
             let correctAnswer = '';
             let options = [];
+            let validation = null;
 
             switch (questionType) {
                 case 'multipleChoice':
@@ -804,10 +821,18 @@ function exportJsonFile() {
                     break;
                 case 'shortAnswer':
                     correctAnswer = 'true'; // Placeholder
+                    // Add validation object with min and max length
+                    const minLength = parseInt(document.getElementById(`qMinLength${i}-${q}`).value, 10) || 2;
+                    const maxLength = parseInt(document.getElementById(`qMaxLength${i}-${q}`).value, 10) || 10000;
+                    validation = {
+                        minLength: minLength,
+                        maxLength: maxLength,
+                        required: true
+                    };
                     break;
             }
 
-            quizzes[i].questions.push({
+            const questionObj = {
                 id: `${i}.${q}`,
                 question: questionText,
                 type: questionType,
@@ -818,7 +843,14 @@ function exportJsonFile() {
                     correct: "Correct!",
                     incorrect: "Incorrect."
                 }
-            });
+            };
+
+            // Add validation object if it exists
+            if (validation) {
+                questionObj.validation = validation;
+            }
+
+            quizzes[i].questions.push(questionObj);
         }
     }
     
@@ -1020,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div>
                         <label>Maximum Length: 
-                            <input type="number" id="qMaxLength${quizId}-${questionNum}" value="100">
+                            <input type="number" id="qMaxLength${quizId}-${questionNum}" value="10000">
                         </label>
                     </div>
                 `;
