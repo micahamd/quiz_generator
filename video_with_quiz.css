@@ -34,7 +34,7 @@ main {
 .video-container {
     margin-bottom: var(--spacing-unit);
     background: white;
-    padding: 10px; /* Reduced padding to maximize video space */
+    padding: 20px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     overflow: hidden;
@@ -49,15 +49,17 @@ main {
     align-items: center;
 }
 
-/* YouTube-specific responsive container - more aggressive sizing */
+/* YouTube-specific responsive container - updated to match regular video */
 .youtube-container {
-    position: relative;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    height: 0;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
     overflow: hidden;
-    width: 100% !important; /* Force full width */
-    box-shadow: var(--box-shadow); /* Add the same box-shadow as regular videos */
-    margin: 0 auto; /* Center the container */
+    /* Remove the percentage padding approach */
+    position: relative;
+    aspect-ratio: 16 / 9;
 }
 
 /* YouTube iframe styling */
@@ -260,8 +262,9 @@ button:disabled {
 
 /* Enhanced responsive styling for videos */
 @media (min-width: 768px) {
-    .youtube-container {
-        max-width: 900px; /* Increased for better visibility */
+    .youtube-container,
+    #myVideo {
+        max-width: 900px; /* Consistent size for both video types */
     }
     
     .video-container {
@@ -270,8 +273,9 @@ button:disabled {
 }
 
 @media (min-width: 1200px) {
-    .youtube-container {
-        max-width: 1000px; /* Larger size for big screens */
+    .youtube-container,
+    #myVideo {
+        max-width: 1000px; /* Consistent size for both video types */
     }
 }
 

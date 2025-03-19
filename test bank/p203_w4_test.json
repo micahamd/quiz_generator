@@ -1,0 +1,350 @@
+{
+  "$schema": "./quiz_schema.json",
+  "videoConfig": {
+    "source": "\"../videos/ps203w4.mp4\"",
+    "startOffset": 0,
+    "endPadding": 5
+  },
+  "quizSchedule": [
+    {
+      "time": 373,
+      "quizId": 1,
+      "title": "First Quiz",
+      "description": "first quiz"
+    },
+    {
+      "time": 895,
+      "quizId": 2,
+      "title": "Second Quiz",
+      "description": "Second Quiz"
+    },
+    {
+      "time": 1290,
+      "quizId": 3,
+      "title": "Third Quiz",
+      "description": "Third Quiz"
+    },
+    {
+      "time": 1766,
+      "quizId": 4,
+      "title": "Final Quiz",
+      "description": "Final Quiz"
+    }
+  ],
+  "quizzes": {
+    "1": {
+      "title": "First Quiz",
+      "description": "first quiz",
+      "present_items": "ALL",
+      "timeLimit": 3000,
+      "questions": [
+        {
+          "id": "1.1",
+          "question": "Why is it important to operationalize variables consistently across studies?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "To make the research process more efficient",
+            " To ensure that the findings are particular to different populations",
+            " To isolate the effects of the variable being studied",
+            " To stabilize statistical power"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.2",
+          "question": "Which statement best describes the relationship between qualitative and quantitative variables?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "Qualitative variables are always more objective than quantitative variables",
+            " Quantitative variables are always preferred in psychological research",
+            " Most psychological variables include both qualitative and quantitative components",
+            " Qualitative and quantitative variables are mutually exclusive and cannot be combined"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.3",
+          "question": "Public variables...",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "Are widely discussed in the media",
+            " Can be readily verified through public observation",
+            " Are only relevant to public opinion",
+            " Require specialized equipment to measure"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.4",
+          "question": "Which is the most optimal approach for investigating private variables?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "By directly observing them in a laboratory setting",
+            " By relying solely on subjective reports from participants",
+            " By inferring their presence from observing related behaviors",
+            " By ignoring them and focusing only on public variables"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "2": {
+      "title": "Second Quiz",
+      "description": "Second Quiz",
+      "present_items": "ALL",
+      "timeLimit": 2400,
+      "questions": [
+        {
+          "id": "2.1",
+          "question": "Which of these would constitute a nominal measurement of intelligence?",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "Ranking individuals on a scale from 1 to 10 based on intelligence",
+            "Assigning individuals to categories such as \"above average\" or \"below average\" intelligence",
+            " Measuring brain activity to determine cortical activation patterns"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.2",
+          "question": "What is a key difference between interval and ratio scales of measurement?",
+          "type": "multipleChoice",
+          "correctAnswer": "d",
+          "points": 2,
+          "options": [
+            " Interval scales involve qualitative measurements while ratio scales involve quantitative measurements",
+            " Interval scales have a true zero point while ratio scales do not",
+            " Ratio scales have a true zero point while interval scales do not",
+            " Interval and ratio scales are essentially the same"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.3",
+          "question": "Converging evidence from operations measuring a construct at various levels suggests...",
+          "type": "multipleChoice",
+          "correctAnswer": "d",
+          "points": 2,
+          "options": [
+            "The construct is not being measured accurately",
+            " There is a need to change the measures being used",
+            " The construct is only relevant at one level of measurement",
+            " The construct is being measured accurately"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.4",
+          "question": "Ordinal scales have equal intervals between each value of interest",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.5",
+          "question": "Temperature is an example of a variable measured on a ratio scale with a true zero point",
+          "type": "trueFalse",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "3": {
+      "title": "Third Quiz",
+      "description": "Third Quiz",
+      "present_items": "ALL",
+      "timeLimit": 300,
+      "questions": [
+        {
+          "id": "3.1",
+          "question": "Criterion based validity describes the extent to which a test correlates with an external criterion of the construct",
+          "type": "trueFalse",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.2",
+          "question": "A reliable measure produces inconsistent results when repeated on multiple occasions",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.3",
+          "question": "Inter-rater reliability refers to the consistency of scores produced by different raters or evaluators",
+          "type": "trueFalse",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "3.4",
+          "question": "Discriminant validity is demonstrated when a test correlates strongly with measures of other constructs",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "4": {
+      "title": "Final Quiz",
+      "description": "Final Quiz",
+      "present_items": "ALL",
+      "timeLimit": 7200,
+      "questions": [
+        {
+          "id": "4.1",
+          "question": "What is criterion-related validity?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "    An assessment of the extent to which a test appears to measure what it is supposed to measure",
+            " An assessment of the extent to which a test measures all aspects of a construct",
+            " An assessment of the extent to which a test scores are related to an established measure",
+            " An assessment of the extent to which a test measures what it is designed to measure without capturing extraneous influences"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.2",
+          "question": "What is typically the first step in the research process?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "Analyzing collected data",
+            " Writing up results in APA format",
+            " Identifying and conceptualizing your construct of interest",
+            " Recruiting participants for the study"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.3",
+          "question": "What are demand characteristics?",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "The specific requirements for participating in a research study",
+            " The unintended influence of task instructions or features on participant responding",
+            " The researcher's expectations about the study outcomes",
+            " The statistical methods used to analyze research data"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.4",
+          "question": "What is researchers mitigate demand characteristics in a study?",
+          "type": "multipleChoice",
+          "correctAnswer": "b",
+          "points": 2,
+          "options": [
+            "By informing all participants of the study's true purpose",
+            " By using an active placebo group or cover stories",
+            " By avoiding the use of control groups",
+            " By exclusively using online surveys"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.5",
+          "question": "Data analysis is not a central feature of the scientific process",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "4.6",
+          "question": "Researchers should avoid consulting peer-reviewed sources when trying to grasp studies that have been conducted within their area of interest",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    }
+  }
+}

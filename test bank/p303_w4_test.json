@@ -1,0 +1,279 @@
+{
+  "$schema": "./quiz_schema.json",
+  "videoConfig": {
+    "source": "\"../videos/ps303w4.mp4\"",
+    "startOffset": 0,
+    "endPadding": 5
+  },
+  "quizSchedule": [
+    {
+      "time": 599,
+      "quizId": 1,
+      "title": "First Quiz",
+      "description": "first quiz"
+    },
+    {
+      "time": 1654,
+      "quizId": 2,
+      "title": "Second Quiz",
+      "description": "Second Quiz"
+    },
+    {
+      "time": 2785,
+      "quizId": 3,
+      "title": "Lab Activity",
+      "description": "Lab Activity"
+    }
+  ],
+  "quizzes": {
+    "1": {
+      "title": "First Quiz",
+      "description": "first quiz",
+      "present_items": "ALL",
+      "timeLimit": 3000,
+      "questions": [
+        {
+          "id": "1.1",
+          "question": "What is a key distinction between a research hypothesis and a statistical hypothesis?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "Research hypotheses describe phenomena in the real world while statistical hypotheses speak about the data and are ambivalent about the real world",
+            "Research hypotheses are always testable through data collection while statistical hypotheses are theoretical constructs",
+            "Research hypotheses are fictional statements designed to be rejected while statistical hypotheses describe real-world phenomena",
+            "Research hypotheses focus on data analysis while statistical hypotheses deal with theoretical concepts",
+            "Research hypotheses are always directly testable with data while statistical hypotheses are abstract and theoretical"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.2",
+          "question": "What is a purpose of the null hypothesis in the context of significance hypothesis testing?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "To directly support the research hypothesis",
+            "To describe a state of the world that is known to be true",
+            "To provide a baseline expectation that is assumed to be true unless there is sufficient evidence to reject it",
+            "To provide a definitive explanation for observed phenomena",
+            "To guide the collection of data"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.3",
+          "question": "In the thought experiment involving high and low social media users, what does the null hypothesis predict about the average well-being scores of the two groups?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "The average well-being scores of high social media users will be significantly higher than those of low social media users.",
+            "The average well-being scores of low social media users will be significantly higher than those of high social media users.",
+            "The average well-being scores of the two groups will be statistically equivalent.",
+            "The well-being scores will be perfectly correlated between the two groups.",
+            "The relationship between social media usage and well-being is unpredictable"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "1.4",
+          "question": "The lecture mentions that frequent statistics are not generally best suited for what purpose?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "Deriving null hypotheses",
+            "Collecting data",
+            "Testing research hypotheses",
+            "Making claims about alternative hypotheses",
+            "Formulating statistical hypotheses"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "2": {
+      "title": "Second Quiz",
+      "description": "Second Quiz",
+      "present_items": "ALL",
+      "timeLimit": 9000,
+      "questions": [
+        {
+          "id": "2.1",
+          "question": "A p-value greater than 0.05 indicates a less than 5% chance of observing the data if the null hypothesis is true",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.2",
+          "question": "A one-sided test is generally more lenient than a two-sided test with respect to significance thresholds",
+          "type": "trueFalse",
+          "correctAnswer": "true",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.3",
+          "question": "Type 1 error is also known as a false negative",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.4",
+          "question": "Increasing sample size always decreases the power of a statistical test",
+          "type": "trueFalse",
+          "correctAnswer": "false",
+          "points": 2,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.5",
+          "question": "What does a two-sided test evaluate?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "Whether an observation is simply unlikely relative to the mean",
+            "Whether an observation is substantially less than the expected mean",
+            "Whether an observation is substantially greater than the expected mean",
+            "Whether the sample size is adequate",
+            "Whether the data is normally distributed"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.6",
+          "question": "Which of the following describes Type II error?",
+          "type": "multipleChoice",
+          "correctAnswer": "a",
+          "points": 2,
+          "options": [
+            "Rejecting a true effect as a null effect",
+            "Describing an effect when it does not exist",
+            "Setting an incorrect p-value threshold",
+            "Using an inappropriate statistical test",
+            "Having a sample that is too large"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        },
+        {
+          "id": "2.7",
+          "question": "What is the relationship between sample size and statistical power, as described in the lecture?",
+          "type": "multipleChoice",
+          "correctAnswer": "c",
+          "points": 2,
+          "options": [
+            "Increasing sample size decreases statistical power",
+            "Decreasing sample size increases statistical power",
+            "Increasing sample size generally increases statistical power",
+            "Sample size and statistical power are unrelated",
+            "Sample size only affects type 1 error"
+          ],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          }
+        }
+      ]
+    },
+    "3": {
+      "title": "Lab Activity",
+      "description": "Lab Activity",
+      "present_items": "ALL",
+      "timeLimit": 60000,
+      "questions": [
+        {
+          "id": "3.1",
+          "question": "For Q1, provide the code for running the binomial test. Then state whether the observed proportion of heads were signficantly different from the null.",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 5,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          },
+          "validation": {
+            "minLength": 2,
+            "maxLength": 100000,
+            "required": true
+          }
+        },
+        {
+          "id": "3.2",
+          "question": "For Q2, provide the code for checking bias against immigrants from Tonga. Is there a significant bias?",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 5,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          },
+          "validation": {
+            "minLength": 2,
+            "maxLength": 10000,
+            "required": true
+          }
+        },
+        {
+          "id": "3.3",
+          "question": "For Q3, describe the code for checking preference towards immigrants from Vanuatu.  Is there a significant preference?",
+          "type": "shortAnswer",
+          "correctAnswer": "true",
+          "points": 5,
+          "options": [],
+          "feedback": {
+            "correct": "Correct!",
+            "incorrect": "Incorrect."
+          },
+          "validation": {
+            "minLength": 2,
+            "maxLength": 10000,
+            "required": true
+          }
+        }
+      ]
+    }
+  }
+}
