@@ -130,6 +130,20 @@ def process_quiz_data(csv_file):
     max_tf_total = grouped.groupby('CourseID')['TrueFalseTotal'].transform('max')
 
     # Calculate and populate scores, handling potential division by zero
+    # Calculate course-specific and test-bank-specific max totals
+    grouped['MultipleChoiceScore'] = ''
+    grouped['TrueFalseScore'] = ''
+    
+    # Group by both CourseID and TestBank if TestBank column exists
+    if 'TestBank' in grouped.columns:
+        max_mcq_total = grouped.groupby(['CourseID', 'TestBank'])['MultipleChoiceTotal'].transform('max')
+        max_tf_total = grouped.groupby(['CourseID', 'TestBank'])['TrueFalseTotal'].transform('max')
+    else:
+        # Original behavior if TestBank column doesn't exist
+        max_mcq_total = grouped.groupby('CourseID')['MultipleChoiceTotal'].transform('max')
+        max_tf_total = grouped.groupby('CourseID')['TrueFalseTotal'].transform('max')
+    
+    # Calculate scores
     grouped['MultipleChoiceScore'] = (grouped['MultipleChoiceCorrect'] / max_mcq_total).round(2)
     grouped['TrueFalseScore'] = (grouped['TrueFalseCorrect'] / max_tf_total).round(2)
     

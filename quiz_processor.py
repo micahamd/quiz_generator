@@ -26,13 +26,13 @@ def get_question_details(question_id, test_banks, course_id):
     course_test_banks = []
     for bank_name, bank_info in test_banks.items():
         if bank_info.get('course') == course_id or bank_info.get('course') in course_id.split('/'):
-            course_test_banks.append(bank_info.get('data', {}))
+            course_test_banks.append((bank_name, bank_info.get('data', {})))
     
     if not course_test_banks:
         return None
     
     # Search each test bank for the question
-    for bank in course_test_banks:
+    for bank_name, bank in course_test_banks:
         quizzes = bank.get('quizzes', {})
         for quiz_id, quiz_data in quizzes.items():
             questions = quiz_data.get('questions', [])
@@ -43,7 +43,8 @@ def get_question_details(question_id, test_banks, course_id):
                         'type': question.get('type', ''),
                         'correct_answer': question.get('correctAnswer', ''),
                         'options': question.get('options', []),
-                        'points': question.get('points', 0)
+                        'points': question.get('points', 0),
+                        'test_bank': bank_name  # Add the test bank name
                     }
     
     return None
@@ -92,7 +93,8 @@ def process_quiz_file(file_path, course_mappings=None, test_banks=None):
                 'QuestionID': question_id,
                 'QuestionType': question_type,
                 'Answer': answer,
-                'Points': points
+                'Points': points,
+                'TestBank': question_details.get('test_bank', 'Uncertain') if question_details else 'Uncertain'
             }
             
             # Add question details from test bank if available
