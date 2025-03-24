@@ -153,9 +153,7 @@ def process_quiz_data(csv_file):
     if len(grouped['CourseID'].unique()) > 1:
         grouped = grouped.sort_values('CourseID')
 
-    # Initialize score columns
-    grouped['MultipleChoiceScore'] = ''
-    grouped['TrueFalseScore'] = ''
+    # Initialize only ratio columns
     grouped['MultipleChoiceRatio'] = ''  # Add a pure ratio column
     grouped['TrueFalseRatio'] = ''       # Add a pure ratio column
     
@@ -164,17 +162,7 @@ def process_quiz_data(csv_file):
         # Fill missing TestBank values
         grouped['TestBank'] = grouped['TestBank'].fillna('Uncertain')
         
-        # Add debug column showing test bank distribution if needed
-        # grouped['TestBankInfo'] = grouped.apply(
-        #     lambda row: f"{row['TestBank']} (MC: {json.loads(row['MultipleChoiceData'])[0]['TestBank'] if json.loads(row['MultipleChoiceData']) else 'None'})",
-        #     axis=1
-        # )
-        
-        # Calculate scores based on grouping
-        max_mcq_total = grouped.groupby(['CourseID', 'TestBank'])['MultipleChoiceTotal'].transform('max')
-        max_tf_total = grouped.groupby(['CourseID', 'TestBank'])['TrueFalseTotal'].transform('max')
-        
-        # Also calculate individual ratios (not scaled by max)
+        # Calculate individual ratios (not scaled by max)
         with pd.option_context('mode.chained_assignment', None):
             mask = grouped['MultipleChoiceTotal'] > 0
             grouped.loc[mask, 'MultipleChoiceRatio'] = (
@@ -187,9 +175,6 @@ def process_quiz_data(csv_file):
             ).round(2)
     else:
         # Original behavior if TestBank column doesn't exist
-        max_mcq_total = grouped.groupby('CourseID')['MultipleChoiceTotal'].transform('max')
-        max_tf_total = grouped.groupby('CourseID')['TrueFalseTotal'].transform('max')
-        
         # Also calculate individual ratios
         with pd.option_context('mode.chained_assignment', None):
             mask = grouped['MultipleChoiceTotal'] > 0
@@ -202,13 +187,7 @@ def process_quiz_data(csv_file):
                 grouped.loc[mask, 'TrueFalseCorrect'] / grouped.loc[mask, 'TrueFalseTotal']
             ).round(2)
     
-    # Calculate scores (normalized by max totals)
-    grouped['MultipleChoiceScore'] = (grouped['MultipleChoiceCorrect'] / max_mcq_total).round(2)
-    grouped['TrueFalseScore'] = (grouped['TrueFalseCorrect'] / max_tf_total).round(2)
-    
-    # Replace inf with NA
-    grouped['MultipleChoiceScore'] = grouped['MultipleChoiceScore'].replace([float('inf'), float('-inf')], pd.NA)
-    grouped['TrueFalseScore'] = grouped['TrueFalseScore'].replace([float('inf'), float('-inf')], pd.NA)
+    # Replace inf with NA for ratio columns
     grouped['MultipleChoiceRatio'] = grouped['MultipleChoiceRatio'].replace([float('inf'), float('-inf')], pd.NA)
     grouped['TrueFalseRatio'] = grouped['TrueFalseRatio'].replace([float('inf'), float('-inf')], pd.NA)
     

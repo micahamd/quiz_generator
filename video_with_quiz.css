@@ -57,9 +57,11 @@ main {
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
     overflow: hidden;
-    /* Remove the percentage padding approach */
     position: relative;
     aspect-ratio: 16 / 9;
+    min-height: 480px; /* Add minimum height to prevent collapse */
+    /* Remove height: 0 as it conflicts with min-height and can cause issues */
+    padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
 }
 
 /* YouTube iframe styling */
@@ -67,8 +69,8 @@ main {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100% !important; /* Force full width */
+    height: 100% !important; /* Force full height */
     border: none;
     display: block;
 }
@@ -265,6 +267,12 @@ button:disabled {
     .youtube-container,
     #myVideo {
         max-width: 900px; /* Consistent size for both video types */
+        min-height: 400px; /* Minimum height for YouTube container */
+    }
+    
+    .youtube-container {
+        /* Remove height: 0 as it conflicts with min-height */
+        padding-bottom: 50.625%; /* 16:9 aspect ratio for 900px width */
     }
     
     .video-container {
@@ -276,6 +284,12 @@ button:disabled {
     .youtube-container,
     #myVideo {
         max-width: 1000px; /* Consistent size for both video types */
+        min-height: 562.5px; /* 16:9 ratio height for 1000px width */
+    }
+    
+    .youtube-container {
+        /* Remove height: 0 as it conflicts with min-height */
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
     }
 }
 
