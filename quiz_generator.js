@@ -443,6 +443,7 @@ function generateFiles() {
     const videoSource = document.getElementById('videoSource').value.trim();
     const sourceType = getVideoSourceType();
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
+    const outputFileNamePrefix = document.getElementById('outputFileName').value.trim() || 'generated_video_quiz'; // Get the prefix
     
     // Process video source based on type
     let processedSource, embedCode;
@@ -634,7 +635,7 @@ function generateFiles() {
 
     // Generate final JS
     const generatedJs = `
-    // filepath: generated_video_quiz.js
+    // filepath: ${outputFileNamePrefix}.js
     const quizData = {
         "metadata": {
             "title": "Generated Quiz",
@@ -729,14 +730,14 @@ function generateFiles() {
                 <p></p>
             </div>
         </template>
-        <script src="generated_video_quiz.js" defer></script>
+        <script src="${outputFileNamePrefix}.js" defer></script>
     </body>
     </html>
     `;
 
     // Create downloadable files
-    downloadFile('generated_video_quiz.js', generatedJs);
-    downloadFile('generated_video_quiz.html', generatedHtml);
+    downloadFile(`${outputFileNamePrefix}.js`, generatedJs);
+    downloadFile(`${outputFileNamePrefix}.html`, generatedHtml);
 }
 
 // JSON config handler

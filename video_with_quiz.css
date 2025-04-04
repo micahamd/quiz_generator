@@ -267,11 +267,11 @@ button:disabled {
     .youtube-container,
     #myVideo {
         max-width: 900px; /* Consistent size for both video types */
-        min-height: 400px; /* Minimum height for YouTube container */
+        min-height: 300px; /* Minimum height for YouTube container */
     }
     
     .youtube-container {
-        /* Remove height: 0 as it conflicts with min-height */
+        /* Remove height: 0 */
         padding-bottom: 50.625%; /* 16:9 aspect ratio for 900px width */
     }
     
@@ -284,7 +284,7 @@ button:disabled {
     .youtube-container,
     #myVideo {
         max-width: 1000px; /* Consistent size for both video types */
-        min-height: 562.5px; /* 16:9 ratio height for 1000px width */
+        min-height: 362.5px; /* 16:9 ratio height for 1000px width */
     }
     
     .youtube-container {
