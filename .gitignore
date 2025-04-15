@@ -20,12 +20,17 @@ build/
 # PHP script
 save_results.php
 
-
 # Generated files
 *_s*.html
 *_s*.js
-*_s*.json
+# *_s*.json
 
 # Other
 .DS_Store
+
+# Separate files, unrelated to the quiz gen app
+video_compressor.py
+quiz_processor.py
+quiz_file_organizer.py
+
 
