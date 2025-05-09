@@ -72,6 +72,23 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "properties": {
+                      "type": {"const": "imageRate"},
+                      "options": {
+                        "type": "array",
+                        "description": "First element contains the image path"
+                      },
+                      "validation": {
+                        "type": "object",
+                        "properties": {
+                          "required": {"type": "boolean"},
+                          "minLength": {"type": "number"},
+                          "maxLength": {"type": "number"}
+                        }
+                      }
+                    }
                   }
                 ]
               }

@@ -2,9 +2,9 @@
 
 ## Template file: video_with_quiz.js/html/css. Never remove or alter these
 
-## Features
-- JSON config import/export
-- Student ID validation (optional)
+## Features :chipmunk: 
+- JSON config import/export :bulb: 
+- Student ID validation (optional) 
 - Multiple question types:
   - Multiple Choice
   - True/False 
