@@ -241,8 +241,18 @@ function renderQuestionInputs(question, index, quizId) {
 
         case 'imageRate':
             // For image rate, the image path is stored in the first element of the options array
-            // Ensure the path is properly unescaped for use in HTML
-            const imagePath = question.options[0].replace(/\\\//g, '/');
+            // Clean up the path - remove quotes and normalize slashes
+            let imagePath = question.options[0];
+
+            // Remove any surrounding quotes
+            imagePath = imagePath.replace(/^["']|["']$/g, '');
+
+            // Convert backslashes to forward slashes
+            imagePath = imagePath.replace(/\\\\/g, '/');
+
+            // Remove any escaped slashes
+            imagePath = imagePath.replace(/\\\//g, '/');
+
             console.log('Rendering image with path:', imagePath);
             return \`
                 <div class="image-container">
@@ -589,6 +599,10 @@ function generateFiles() {
                     correctAnswer = 'true'; // Placeholder
                     // Get image path
                     let imagePath = document.getElementById(`qImagePath${i}-${q}`).value.trim();
+
+                    // Clean up the image path - remove quotes and normalize slashes
+                    imagePath = imagePath.replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+                    imagePath = imagePath.replace(/\\/g, '/'); // Convert backslashes to forward slashes
 
                     // Ensure the image path is properly formatted
                     // If it's not a URL (doesn't start with http:// or https://) and doesn't start with a slash,
@@ -978,6 +992,10 @@ function exportJsonFile() {
                     correctAnswer = 'true'; // Placeholder
                     // Get image path
                     let imagePath = document.getElementById(`qImagePath${i}-${q}`).value.trim();
+
+                    // Clean up the image path - remove quotes and normalize slashes
+                    imagePath = imagePath.replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+                    imagePath = imagePath.replace(/\\/g, '/'); // Convert backslashes to forward slashes
 
                     // Ensure the image path is properly formatted
                     // If it's not a URL (doesn't start with http:// or https://) and doesn't start with a slash,
