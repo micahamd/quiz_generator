@@ -1,12 +1,17 @@
-/test bank
-/new_quizzes
-/old_files
-/quiz_paper
-/ils_tutorial
-/images
+# Directories containing user-specific content
+/test bank/
+/new_quizzes/
+/old_files/
+/quiz_paper/
+/ils_tutorial/
+/images/
+/quiz_results/
 
+# Student ID lists (contain sensitive information)
+*_id_list.txt
 ps203_id_list.txt
 ps303_id_list.txt
+test_id_list.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -18,20 +23,33 @@ dist/
 build/
 *.egg-info/
 
-# PHP script
+# PHP script (contains server-specific configuration)
 save_results.php
 
-# Generated files
+# Generated quiz files
+generated_*.html
+generated_*.js
 *_s*.html
 *_s*.js
-## *_s*.json
+@generated_*.html
+@generated_*.js
 
-# Other
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS-specific files
 .DS_Store
+Thumbs.db
+desktop.ini
 
-# Separate files, unrelated to the quiz gen app
-video_compressor.py
-quiz_processor.py
-quiz_file_organizer.py
+# Python data files
+*.pkl
+*.pyc
 
-
+# Keep these files in the repo even though they're Python utilities
+# They're part of the quiz generator ecosystem
+# video_compressor.py
+# quiz_processor.py
+# quiz_file_organizer.py
