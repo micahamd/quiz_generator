@@ -295,32 +295,7 @@ function renderQuestionInputs(question, index, quizId) {
                         class="slider-input"
                         style="width: 100%;"
                     >
-                    <div class="slider-value-display">
-                        Selected value: <span class="slider-current-value-\${quizId}-\${index}" id="slider-value-\${quizId}-\${index}">\${Math.floor((leftValue + rightValue) / 2)}</span>
-                    </div>
-                    <script>
-                        // Use a self-executing function to create a closure with the current quizId and index
-                        (function(currentQuizId, currentIndex) {
-                            // Add event listener after the DOM is fully loaded
-                            document.addEventListener('DOMContentLoaded', function() {
-                                // Use the specific ID for this slider
-                                const sliderId = 'q' + currentQuizId + '-' + currentIndex;
-                                const valueId = 'slider-value-' + currentQuizId + '-' + currentIndex;
 
-                                // Wait a short time to ensure elements are rendered
-                                setTimeout(function() {
-                                    const slider = document.querySelector('input[name="' + sliderId + '"]');
-                                    const valueDisplay = document.getElementById(valueId);
-
-                                    if (slider && valueDisplay) {
-                                        slider.addEventListener('input', function() {
-                                            valueDisplay.textContent = this.value;
-                                        });
-                                    }
-                                }, 100);
-                            });
-                        })('\${quizId}', '\${index}');
-                    </script>
                 </div>
             \`;
 
