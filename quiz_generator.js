@@ -271,6 +271,41 @@ function renderQuestionInputs(question, index, quizId) {
                 </div>
             \`;
 
+        case 'sliderRating':
+            // For slider rating, we need to extract the slider parameters from the options object
+            const sliderOptions = question.options || {};
+            const leftValue = sliderOptions.leftValue || 1;
+            const rightValue = sliderOptions.rightValue || 5;
+            const leftLabel = sliderOptions.leftLabel || 'Weak';
+            const rightLabel = sliderOptions.rightLabel || 'Strong';
+            const sliderText = sliderOptions.sliderText || 'Rate on the scale below:';
+
+            return \`
+                <div class="slider-container">
+                    <p class="slider-text">\${sliderText}</p>
+                    <div class="slider-labels">
+                        <span class="slider-left-label">\${leftLabel} (\${leftValue})</span>
+                        <span class="slider-right-label">\${rightLabel} (\${rightValue})</span>
+                    </div>
+                    <input type="range"
+                        name="q\${quizId}-\${index}"
+                        min="\${leftValue}"
+                        max="\${rightValue}"
+                        value="\${Math.floor((leftValue + rightValue) / 2)}"
+                        class="slider-input"
+                        style="width: 100%;"
+                    >
+                    <div class="slider-value-display">
+                        Selected value: <span class="slider-current-value">\${Math.floor((leftValue + rightValue) / 2)}</span>
+                    </div>
+                    <script>
+                        document.querySelector('input[name="q\${quizId}-\${index}"]').addEventListener('input', function() {
+                            document.querySelector('.slider-current-value').textContent = this.value;
+                        });
+                    </script>
+                </div>
+            \`;
+
         default:
             return '';
     }
@@ -286,19 +321,23 @@ function checkAnswers(quizId, questions) {
         const feedbackElement = questionElement.querySelector('.feedback');
         let answer;
 
-        if (question.type === 'shortAnswer' || question.type === 'imageRate') {
-            // Handle both shortAnswer and imageRate similarly
+        if (question.type === 'shortAnswer' || question.type === 'imageRate' || question.type === 'sliderRating') {
+            // Handle shortAnswer, imageRate, and sliderRating
             let inputElement;
 
             if (question.type === 'shortAnswer') {
                 inputElement = document.querySelector(\`input[name="q\${quizId}-\${index}"]\`);
-            } else { // imageRate
+            } else if (question.type === 'imageRate') {
                 inputElement = document.querySelector(\`textarea[name="q\${quizId}-\${index}"]\`);
+            } else if (question.type === 'sliderRating') {
+                inputElement = document.querySelector(\`input[name="q\${quizId}-\${index}"]\`);
             }
 
             answer = inputElement ? inputElement.value.trim() : '';
 
-            if (answer && answer.length < (question.validation?.minLength || 0)) {
+            // Only validate min length for text inputs (shortAnswer and imageRate)
+            if ((question.type === 'shortAnswer' || question.type === 'imageRate') &&
+                answer && answer.length < (question.validation?.minLength || 0)) {
                 allAnswered = false;
                 return;
             }
@@ -448,6 +487,25 @@ function populateFormFromJson(json) {
                         }
                         if (question.validation.maxLength) {
                             document.getElementById(`qMaxLength${quizId}-${qIndex + 1}`).value = question.validation.maxLength;
+                        }
+                    }
+                } else if (question.type === 'sliderRating') {
+                    // For slider rating, the parameters are stored in the options object
+                    if (question.options) {
+                        if (question.options.leftValue !== undefined) {
+                            document.getElementById(`qSliderLeftValue${quizId}-${qIndex + 1}`).value = question.options.leftValue;
+                        }
+                        if (question.options.rightValue !== undefined) {
+                            document.getElementById(`qSliderRightValue${quizId}-${qIndex + 1}`).value = question.options.rightValue;
+                        }
+                        if (question.options.leftLabel) {
+                            document.getElementById(`qSliderLeftLabel${quizId}-${qIndex + 1}`).value = question.options.leftLabel;
+                        }
+                        if (question.options.rightLabel) {
+                            document.getElementById(`qSliderRightLabel${quizId}-${qIndex + 1}`).value = question.options.rightLabel;
+                        }
+                        if (question.options.sliderText) {
+                            document.getElementById(`qSliderText${quizId}-${qIndex + 1}`).value = question.options.sliderText;
                         }
                     }
                 }
@@ -622,6 +680,25 @@ function generateFiles() {
                     };
                     // Store image path in options array for consistency
                     options = [imagePath];
+                    break;
+                case 'sliderRating':
+                    correctAnswer = 'true'; // Placeholder, not used for slider
+
+                    // Get slider parameters
+                    const leftValue = parseInt(document.getElementById(`qSliderLeftValue${i}-${q}`).value, 10) || 1;
+                    const rightValue = parseInt(document.getElementById(`qSliderRightValue${i}-${q}`).value, 10) || 5;
+                    const leftLabel = document.getElementById(`qSliderLeftLabel${i}-${q}`).value.trim() || 'Weak';
+                    const rightLabel = document.getElementById(`qSliderRightLabel${i}-${q}`).value.trim() || 'Strong';
+                    const sliderText = document.getElementById(`qSliderText${i}-${q}`).value.trim() || 'This is a slider scale.';
+
+                    // Store slider parameters in options object
+                    options = {
+                        leftValue: leftValue,
+                        rightValue: rightValue,
+                        leftLabel: leftLabel,
+                        rightLabel: rightLabel,
+                        sliderText: sliderText
+                    };
                     break;
             }
 
@@ -1016,6 +1093,25 @@ function exportJsonFile() {
                     // Store image path in options array for consistency
                     options = [imagePath];
                     break;
+                case 'sliderRating':
+                    correctAnswer = 'true'; // Placeholder, not used for slider
+
+                    // Get slider parameters
+                    const sliderLeftValue = parseInt(document.getElementById(`qSliderLeftValue${i}-${q}`).value, 10) || 1;
+                    const sliderRightValue = parseInt(document.getElementById(`qSliderRightValue${i}-${q}`).value, 10) || 5;
+                    const sliderLeftLabel = document.getElementById(`qSliderLeftLabel${i}-${q}`).value.trim() || 'Weak';
+                    const sliderRightLabel = document.getElementById(`qSliderRightLabel${i}-${q}`).value.trim() || 'Strong';
+                    const sliderText = document.getElementById(`qSliderText${i}-${q}`).value.trim() || 'This is a slider scale.';
+
+                    // Store slider parameters in options object
+                    options = {
+                        leftValue: sliderLeftValue,
+                        rightValue: sliderRightValue,
+                        leftLabel: sliderLeftLabel,
+                        rightLabel: sliderRightLabel,
+                        sliderText: sliderText
+                    };
+                    break;
             }
 
             const questionObj = {
@@ -1207,6 +1303,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <option value="trueFalse">True/False</option>
                             <option value="shortAnswer">Short Answer</option>
                             <option value="imageRate">Image Rate</option>
+                            <option value="sliderRating">Slider Rating</option>
                         </select>
                     </label>
                 </div>
@@ -1291,6 +1388,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div>
                         <label>Maximum Length:
                             <input type="number" id="qMaxLength${quizId}-${questionNum}" value="10000">
+                        </label>
+                    </div>
+                `;
+                break;
+            case 'sliderRating':
+                html = `
+                    <div>
+                        <label>Left Value (numeric):
+                            <input type="number" id="qSliderLeftValue${quizId}-${questionNum}" value="1" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Right Value (numeric):
+                            <input type="number" id="qSliderRightValue${quizId}-${questionNum}" value="5" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Left Anchor Label:
+                            <input type="text" id="qSliderLeftLabel${quizId}-${questionNum}" value="Weak" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Right Anchor Label:
+                            <input type="text" id="qSliderRightLabel${quizId}-${questionNum}" value="Strong" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Slider Text:
+                            <input type="text" id="qSliderText${quizId}-${questionNum}" value="This is a slider scale." required>
                         </label>
                     </div>
                 `;

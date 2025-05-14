@@ -89,6 +89,22 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "properties": {
+                      "type": {"const": "sliderRating"},
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "leftValue": {"type": "number"},
+                          "rightValue": {"type": "number"},
+                          "leftLabel": {"type": "string"},
+                          "rightLabel": {"type": "string"},
+                          "sliderText": {"type": "string"}
+                        },
+                        "required": ["leftValue", "rightValue", "leftLabel", "rightLabel"]
+                      }
+                    }
                   }
                 ]
               }
