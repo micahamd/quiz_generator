@@ -1,4 +1,4 @@
-# Video Quiz Generator v2.3
+# Video Quiz Generator v2.4
 
 ## Overview
 The Video Quiz Generator is a comprehensive tool for creating interactive video quizzes for educational purposes. It supports both online and offline use, with features for student ID validation, multiple question types, and detailed result tracking.
@@ -11,6 +11,7 @@ The Video Quiz Generator is a comprehensive tool for creating interactive video 
   - True/False
   - Short Answer
   - Image Rate
+  - Slider Rating (NEW!)
 - Automatic quiz timing from JSON
 - Progress tracking
 - Accessible UI
@@ -118,6 +119,23 @@ Use `question_bank.json` template:
             "correct": "Submitted!",
             "incorrect": "Please provide an answer."
           }
+        },
+        {
+          "id": "1.5",
+          "type": "sliderRating",
+          "question": "Rate the effectiveness of the presented technique.",
+          "points": 5,
+          "options": {
+            "leftValue": 1,
+            "rightValue": 5,
+            "leftLabel": "Weak",
+            "rightLabel": "Strong",
+            "sliderText": "This is a slider scale."
+          },
+          "feedback": {
+            "correct": "Submitted!",
+            "incorrect": "Please provide a rating."
+          }
         }
       ]
     }
@@ -128,12 +146,18 @@ Use `question_bank.json` template:
 ## Quiz Generator Usage
 1. Load config via JSON upload or create a new quiz from scratch
 2. Edit directly in form
-3. Add questions of various types (Multiple Choice, True/False, Short Answer, Image Rate)
+3. Add questions of various types (Multiple Choice, True/False, Short Answer, Image Rate, Slider Rating)
 4. For Image Rate questions, specify:
    - Image path (local or remote URL)
    - Minimum and maximum response length
-5. Generate files
-6. Open generated_video_quiz.html
+5. For Slider Rating questions, specify:
+   - Left value (numeric, e.g., 1)
+   - Right value (numeric, e.g., 5)
+   - Left anchor label (e.g., "Weak")
+   - Right anchor label (e.g., "Strong")
+   - Slider text (descriptive text for the scale)
+6. Generate files
+7. Open generated_video_quiz.html
 
 ## Image Path Recommendations
 - **For local testing**: Use relative paths like `images/example.jpg` and place your images in a folder relative to the HTML file
@@ -179,7 +203,7 @@ This tool processes JSON quiz result files and converts them to a CSV format tha
 ## Features
 
 - Processes multiple JSON quiz result files
-- Identifies different question types (multiple choice, true/false, short answer, image rate)
+- Identifies different question types (multiple choice, true/false, short answer, image rate, slider rating)
 - Exports results to CSV format
 - Works with different quiz formats
 - Graphical user interface for easier operation
@@ -216,7 +240,7 @@ The Test Bank Creator is a Python tool designed to automatically generate quiz c
 ## Planned Features
 
 - AI-powered question generation using Gemini API or Ollama
-- Support for multiple question types (MCQ, True/False, Short Answer)
+- Support for multiple question types (MCQ, True/False, Short Answer, Image Rate, Slider Rating)
 - Automatic extraction of key concepts from lecture transcripts
 - JSON output compatible with the Quiz Generator
 - Customizable question difficulty levels
@@ -318,6 +342,7 @@ When run directly, it will process a hardcoded CSV file path (which can be modif
 # Development and Contribution
 
 ## Version History
+- v2.4: Added Slider Rating question type
 - v2.3: Added improved online/offline compatibility, enhanced image path handling
 - v2.2: Added Image Rate question type, improved path handling
 - v2.1: Added JSON configuration support, enhanced validation

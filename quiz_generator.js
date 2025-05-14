@@ -296,11 +296,19 @@ function renderQuestionInputs(question, index, quizId) {
                         style="width: 100%;"
                     >
                     <div class="slider-value-display">
-                        Selected value: <span class="slider-current-value">\${Math.floor((leftValue + rightValue) / 2)}</span>
+                        Selected value: <span class="slider-current-value-\${quizId}-\${index}">\${Math.floor((leftValue + rightValue) / 2)}</span>
                     </div>
                     <script>
-                        document.querySelector('input[name="q\${quizId}-\${index}"]').addEventListener('input', function() {
-                            document.querySelector('.slider-current-value').textContent = this.value;
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const slider = document.querySelector('input[name="q\${quizId}-\${index}"]');
+                            if (slider) {
+                                slider.addEventListener('input', function() {
+                                    const valueDisplay = document.querySelector('.slider-current-value-\${quizId}-\${index}');
+                                    if (valueDisplay) {
+                                        valueDisplay.textContent = this.value;
+                                    }
+                                });
+                            }
                         });
                     </script>
                 </div>
