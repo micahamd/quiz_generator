@@ -335,14 +335,27 @@ function checkAnswers(quizId, questions) {
                 return;
             }
 
-            state.quizResults.push({
+            // Enhanced result object with comprehensive information
+            const resultObj = {
                 quizId,
                 questionId: question.id,
                 studentId: state.studentId,
                 answer,
                 points: question.points,
-                questionType: question.type // Add question type for easier processing
-            });
+                questionType: question.type,
+                // Enhanced fields for comprehensive output
+                questionText: question.question,
+                answerText: answer // For these types, answer and answerText are the same
+            };
+
+            // Add question-specific details
+            if (question.type === 'imageRate' && question.options && question.options.length > 0) {
+                resultObj.imagePath = question.options[0];
+            } else if (question.type === 'sliderRating' && question.options) {
+                resultObj.sliderOptions = question.options;
+            }
+
+            state.quizResults.push(resultObj);
         }
          else {
             const selected = document.querySelector(\`input[name="q\${quizId}-\${index}"]:checked\`);
@@ -360,15 +373,44 @@ function checkAnswers(quizId, questions) {
             feedbackElement.classList.add(isCorrect ? 'correct' : 'incorrect');
             feedbackElement.style.display = 'block';
 
-            state.quizResults.push({
+            // Get the actual text of the selected answer for MCQs
+            let answerText = answer;
+            if (question.type === 'multipleChoice' && question.options) {
+                // Convert letter answer (a, b, c, d) to option index
+                const optionIndex = answer.charCodeAt(0) - 97; // 'a' = 0, 'b' = 1, etc.
+                if (optionIndex >= 0 && optionIndex < question.options.length) {
+                    answerText = question.options[optionIndex];
+                }
+            } else if (question.type === 'trueFalse') {
+                answerText = answer === 'true' ? 'True' : 'False';
+            }
+
+            // Enhanced result object with comprehensive information
+            const resultObj = {
                 quizId,
                 questionId: question.id,
                 studentId: state.studentId,
                 answer,
                 correct: isCorrect,
                 points: isCorrect ? question.points : 0,
-                questionType: question.type // Add question type for easier processing
-            });
+                questionType: question.type,
+                // Enhanced fields for comprehensive output
+                questionText: question.question,
+                answerText: answerText,
+                correctAnswer: question.correctAnswer
+            };
+
+            // Add options for multiple choice questions
+            if (question.type === 'multipleChoice' && question.options) {
+                resultObj.questionOptions = question.options;
+                // Also include the correct answer text
+                const correctIndex = question.correctAnswer.charCodeAt(0) - 97;
+                if (correctIndex >= 0 && correctIndex < question.options.length) {
+                    resultObj.correctAnswerText = question.options[correctIndex];
+                }
+            }
+
+            state.quizResults.push(resultObj);
         }
     });
 
