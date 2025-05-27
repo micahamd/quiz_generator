@@ -1,0 +1,349 @@
+/* Enhanced Base styles */
+:root {
+    --primary-color: #3498db; /* Bright Blue */
+    --secondary-color: #e74c3c; /* Red */
+    --background-color: #ecf0f1; /* Light Gray */
+    --text-color: #2c3e50; /* Dark Slate */
+    --text-light-color: #7f8c8d; /* Lighter Slate */
+    --border-radius: 8px;
+    --spacing-unit: 20px;
+    --box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    line-height: 1.7;
+    color: var(--text-color);
+    margin: 0;
+    padding: var(--spacing-unit);
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  max-width: 1200px; /* Increased max-width for larger screens */
+  margin: 0 auto;
+  padding-bottom: var(--spacing-unit);
+}
+
+/* Enhanced Video container with stronger rules */
+.video-container {
+    margin-bottom: var(--spacing-unit);
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    width: 100% !important;
+    max-width: 1200px !important; /* Increased maximum width */
+    margin: 0 auto 20px;
+    
+    /* For better display of YouTube videos */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* YouTube-specific responsive container - updated to match regular video */
+.youtube-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    min-height: 480px; /* Add minimum height to prevent collapse */
+    /* Remove height: 0 as it conflicts with min-height and can cause issues */
+    padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
+}
+
+/* YouTube iframe styling */
+.youtube-container iframe#myVideo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important; /* Force full width */
+    height: 100% !important; /* Force full height */
+    border: none;
+    display: block;
+}
+
+/* Regular video styling */
+#myVideo {
+    width: 100%;
+    max-width: 1000px; /* Increased to match YouTube container */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Quiz container */
+#quiz-container {
+    display: none;
+    margin: var(--spacing-unit) auto;
+    padding: var(--spacing-unit);
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    max-width: 95%; /* Adjust max-width for smaller screens */
+}
+
+.quiz-section {
+    margin-bottom: var(--spacing-unit);
+}
+
+.quiz-section h2 {
+  margin-bottom: var(--spacing-unit);
+}
+
+.quiz-question {
+    padding: calc(var(--spacing-unit) * 0.75);
+    border: 1px solid #d9d9d9;
+    margin-bottom: var(--spacing-unit);
+    border-radius: calc(var(--border-radius) / 2); /* more rounded corners for questions*/
+    background: white;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.quiz-question:hover {
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2); /* Raised effect */
+  transform: translateY(-2px); /* Slight lift on hover */
+}
+
+
+.quiz-question p {
+    font-weight: 500;
+    margin-top: 0;
+    margin-bottom: calc(var(--spacing-unit) / 2);
+    color: var(--text-color)
+}
+
+/* Form elements */
+input[type="radio"] {
+    margin-right: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--text-light-color);
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+
+input[type="radio"]:checked {
+  border-color: var(--primary-color);
+  background-color: var(--primary-color);
+}
+
+input[type="radio"]:checked::after {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+input[type="text"],
+select {
+    width: calc(100% - 16px); /* slightly smaller to account for padding */
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #d9d9d9;
+    border-radius: calc(var(--border-radius) / 2);
+    font-size: 16px;
+    color: var(--text-color);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+    transition: var(--transition);
+}
+
+
+input[type="text"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(var(--primary-color-rgb), 0.25);
+}
+
+
+.option-container {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+
+/* Buttons */
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 16px;
+    transition: var(--transition);
+    box-shadow: var(--box-shadow);
+}
+
+
+button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px); /* slight upward lift */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+#submitResults {
+    background-color: var(--secondary-color);
+    margin-top: var(--spacing-unit);
+}
+
+#submitResults:hover {
+    background-color: #c0392b;
+}
+
+/* Loading state */
+.loading {
+    text-align: center;
+    padding: var(--spacing-unit);
+}
+
+.loading::after {
+    content: "Loading...";
+    color: var(--text-color);
+    font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .quiz-question {
+        padding: 12px;
+    }
+    
+    button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    #myVideo {
+      max-width: 100%;
+    }
+
+     #quiz-container {
+      padding: 10px;
+    }
+}
+
+/* Enhanced responsive styling for videos */
+@media (min-width: 768px) {
+    .youtube-container,
+    #myVideo {
+        max-width: 900px; /* Consistent size for both video types */
+        min-height: 300px; /* Minimum height for YouTube container */
+    }
+    
+    .youtube-container {
+        /* Remove height: 0 */
+        padding-bottom: 50.625%; /* 16:9 aspect ratio for 900px width */
+    }
+    
+    .video-container {
+        padding: calc(var(--spacing-unit)/2);
+    }
+}
+
+@media (min-width: 1200px) {
+    .youtube-container,
+    #myVideo {
+        max-width: 1000px; /* Consistent size for both video types */
+        min-height: 362.5px; /* 16:9 ratio height for 1000px width */
+    }
+    
+    .youtube-container {
+        /* Remove height: 0 as it conflicts with min-height */
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    }
+}
+
+/* Accessibility */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Quiz feedback */
+.feedback {
+    padding: 12px 18px;
+    margin: 10px 0;
+    border-radius: calc(var(--border-radius) / 2);
+    display: none;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.feedback.correct {
+    background-color: #2ecc7120; /* Pale green */
+    color: #2ecc71; /* Green */
+    border: 1px solid #2ecc71;
+}
+
+.feedback.incorrect {
+    background-color: #e74c3c20; /* Pale red */
+    color: #e74c3c; /* Red */
+    border: 1px solid #e74c3c;
+}
+
+/* Quiz progress */
+.quiz-progress {
+    width: 100%;
+    background: #f0f0f0;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-unit);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+#progress-indicator {
+    height: 100%;
+    background-color: var(--primary-color);
+    width: 0%;
+    transition: width 0.4s ease-in-out;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
