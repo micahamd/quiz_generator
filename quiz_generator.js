@@ -430,9 +430,30 @@ function checkAnswers(quizId, questions) {
 
 function saveResults() {
     try {
+        // Extract test ID from the current script filename
+        const scripts = document.getElementsByTagName('script');
+        let testId = 'unknown_quiz';
+
+        // Look for the quiz data script (should be the last script with a .js extension)
+        for (let i = scripts.length - 1; i >= 0; i--) {
+            const src = scripts[i].src;
+            if (src && src.endsWith('.js')) {
+                // Extract filename without extension
+                const filename = src.split('/').pop().replace('.js', '');
+                testId = filename;
+                break;
+            }
+        }
+
+        // Fallback: try to get from quiz metadata if available
+        if (testId === 'unknown_quiz' && state.quizData?.metadata?.title) {
+            testId = state.quizData.metadata.title.toLowerCase().replace(/\s+/g, '_');
+        }
+
         const results = {
             studentId: state.studentId,
             timestamp: new Date().toISOString(),
+            testID: testId,
             results: state.quizResults
         };
 
@@ -766,9 +787,30 @@ function generateFiles() {
     if (saveResultsViaPhp) {
         // PHP save results function
         saveResultsFunctionCode = `function saveResults() {
+            // Extract test ID from the current script filename
+            const scripts = document.getElementsByTagName('script');
+            let testId = 'unknown_quiz';
+
+            // Look for the quiz data script (should be the last script with a .js extension)
+            for (let i = scripts.length - 1; i >= 0; i--) {
+                const src = scripts[i].src;
+                if (src && src.endsWith('.js')) {
+                    // Extract filename without extension
+                    const filename = src.split('/').pop().replace('.js', '');
+                    testId = filename;
+                    break;
+                }
+            }
+
+            // Fallback: try to get from quiz metadata if available
+            if (testId === 'unknown_quiz' && state.quizData?.metadata?.title) {
+                testId = state.quizData.metadata.title.toLowerCase().replace(/\\s+/g, '_');
+            }
+
             const results = {
                 studentId: state.studentId,
                 timestamp: new Date().toISOString(),
+                testID: testId,
                 results: state.quizResults
             };
 
@@ -805,9 +847,30 @@ function generateFiles() {
         // Client-side implementation for TOGGLE=OFF
         saveResultsFunctionCode = `function saveResults() {
             try {
+                // Extract test ID from the current script filename
+                const scripts = document.getElementsByTagName('script');
+                let testId = 'unknown_quiz';
+
+                // Look for the quiz data script (should be the last script with a .js extension)
+                for (let i = scripts.length - 1; i >= 0; i--) {
+                    const src = scripts[i].src;
+                    if (src && src.endsWith('.js')) {
+                        // Extract filename without extension
+                        const filename = src.split('/').pop().replace('.js', '');
+                        testId = filename;
+                        break;
+                    }
+                }
+
+                // Fallback: try to get from quiz metadata if available
+                if (testId === 'unknown_quiz' && state.quizData?.metadata?.title) {
+                    testId = state.quizData.metadata.title.toLowerCase().replace(/\\s+/g, '_');
+                }
+
                 const results = {
                     studentId: state.studentId,
                     timestamp: new Date().toISOString(),
+                    testID: testId,
                     results: state.quizResults
                 };
 
