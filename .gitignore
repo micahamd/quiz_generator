@@ -7,12 +7,6 @@
 /images/
 /quiz_results/
 
-# Student ID lists (contain sensitive information)
-*_id_list.txt
-ps203_id_list.txt
-ps303_id_list.txt
-test_id_list.txt
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -44,12 +38,11 @@ generated_*.js
 Thumbs.db
 desktop.ini
 
-# Python data files
+# Python data files and text files
 *.pkl
 *.pyc
+*.py
+*.txt
+*.zip
 
-# Keep these files in the repo even though they're Python utilities
-# They're part of the quiz generator ecosystem
-# video_compressor.py
-# quiz_processor.py
-# quiz_file_organizer.py
+
