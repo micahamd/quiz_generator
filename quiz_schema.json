@@ -72,6 +72,39 @@
                         }
                       }
                     }
+                  },
+                  {
+                    "properties": {
+                      "type": {"const": "imageRate"},
+                      "options": {
+                        "type": "array",
+                        "description": "First element contains the image path"
+                      },
+                      "validation": {
+                        "type": "object",
+                        "properties": {
+                          "required": {"type": "boolean"},
+                          "minLength": {"type": "number"},
+                          "maxLength": {"type": "number"}
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "type": {"const": "sliderRating"},
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "leftValue": {"type": "number"},
+                          "rightValue": {"type": "number"},
+                          "leftLabel": {"type": "string"},
+                          "rightLabel": {"type": "string"},
+                          "sliderText": {"type": "string"}
+                        },
+                        "required": ["leftValue", "rightValue", "leftLabel", "rightLabel"]
+                      }
+                    }
                   }
                 ]
               }
