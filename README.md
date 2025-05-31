@@ -1,57 +1,38 @@
-# Video Quiz Generator v2.4
+# Video Quiz Generator v0.4
 
 ## Overview
-The Video Quiz Generator is a comprehensive tool for creating interactive video quizzes for educational purposes. It supports both online and offline use, with features for student ID validation, multiple question types, and detailed result tracking.
+A comprehensive web-based tool for creating interactive video quizzes with multiple question types, student ID validation, and detailed result tracking. Supports both online and offline deployment.
 
-## Features :bulb:
-- JSON config import/export
+## Features
+- JSON configuration import/export
 - Student ID validation (optional)
-- Multiple question types:
-  - Multiple Choice
-  - True/False
-  - Short Answer
-  - Image Rate
-  - Slider Rating (NEW!)
-- Automatic quiz timing from JSON
-- Progress tracking
-- Accessible UI
-- Works both online and offline
-- Compatible with local and remote file paths
+- Multiple question types: Multiple Choice, True/False, Short Answer, Image Ratings, Slider Ratings
+- Automatic quiz timing synchronization
+- Progress tracking and accessible UI
+- Cross-platform compatibility (online/offline)
 - PHP-based result submission (online mode)
 
-## Project Components
+## Core Components
 
-### 1. Quiz Generator
-The core web-based interface for creating quizzes with the following files:
-- `quiz_generator.html` - Main interface (never modify)
-- `quiz_generator.js` - Core functionality (never modify)
-- `quiz_schema.json` - JSON schema for quiz configuration
+### Quiz Generator
+- `quiz_generator.html` - Main interface
+- `quiz_generator.js` - Core functionality
+- `quiz_schema.json` - JSON schema for configuration
 - `video_with_quiz.css` - Styling for generated quizzes
 
-### 2. Python Utilities
-Several Python tools to enhance the quiz generation workflow:
-- `quiz_processor.py` - Processes quiz results into CSV format
-- `quiz_file_organizer.py` - Organizes quiz files and processes data
-- `video_compressor.py` - Utility for compressing video files
-- `test_bank_creator.py` - AI-powered tool for generating quiz content from lecture transcripts (planned)
+### Server Components
+- `save_results.php` - Server-side result storage
+- `.htaccess` - Access control for admin files
 
-### 3. Server Components
-Files for online deployment:
-- `save_results.php` - Saves quiz results to server
-- `.htaccess` - Controls access to quiz admin files
+## Usage
 
-## Student ID Handling
-1. Create a text file with one ID per line
-2. Click "Upload Student IDs"
-3. Select your ID file
-- *Note:* Leave empty to allow any ID
+### Configuration
+Create or upload a JSON configuration file following this structure:
 
-## JSON Configuration
-Use `question_bank.json` template:
 ```json
 {
   "videoConfig": {
-    "source": "Course/Course_vid.mp4"
+    "source": "path/to/video.mp4"
   },
   "quizSchedule": [
     {
@@ -61,80 +42,20 @@ Use `question_bank.json` template:
   ],
   "quizzes": {
     "q1": {
-      "title": "Course Quiz",
-      "description": "First quiz",
-      "present_items": "ALL",
+      "title": "Quiz Title",
+      "description": "Quiz description",
       "timeLimit": 180,
       "questions": [
         {
           "id": "1.1",
           "type": "multipleChoice",
-          "question": "What is...?",
-          "options": ["A", "B", "C"],
+          "question": "Question text",
+          "options": ["Option A", "Option B", "Option C"],
           "correctAnswer": "a",
           "points": 5,
           "feedback": {
-            "correct": "Correct!",
-            "incorrect": "Incorrect."
-          }
-        },
-        {
-          "id": "1.2",
-          "type": "trueFalse",
-          "question": "Is this statement true?",
-          "correctAnswer": "true",
-          "points": 5,
-          "feedback": {
-            "correct": "Correct!",
-            "incorrect": "Incorrect."
-          }
-        },
-        {
-          "id": "1.3",
-          "type": "shortAnswer",
-          "question": "Explain in your own words...",
-          "points": 10,
-          "validation": {
-            "minLength": 2,
-            "maxLength": 10000,
-            "required": true
-          },
-          "feedback": {
-            "correct": "Submitted!",
-            "incorrect": "Please provide an answer."
-          }
-        },
-        {
-          "id": "1.4",
-          "type": "imageRate",
-          "question": "Analyze the image below and explain...",
-          "points": 10,
-          "options": ["images/example.jpg"],
-          "validation": {
-            "minLength": 2,
-            "maxLength": 10000,
-            "required": true
-          },
-          "feedback": {
-            "correct": "Submitted!",
-            "incorrect": "Please provide an answer."
-          }
-        },
-        {
-          "id": "1.5",
-          "type": "sliderRating",
-          "question": "Rate the effectiveness of the presented technique.",
-          "points": 5,
-          "options": {
-            "leftValue": 1,
-            "rightValue": 5,
-            "leftLabel": "Weak",
-            "rightLabel": "Strong",
-            "sliderText": "This is a slider scale."
-          },
-          "feedback": {
-            "correct": "Submitted!",
-            "incorrect": "Please provide a rating."
+            "correct": "Correct response",
+            "incorrect": "Incorrect response"
           }
         }
       ]
@@ -143,234 +64,77 @@ Use `question_bank.json` template:
 }
 ```
 
-## Quiz Generator Usage
-1. Load config via JSON upload or create a new quiz from scratch
-2. Edit directly in form
-3. Add questions of various types (Multiple Choice, True/False, Short Answer, Image Rate, Slider Rating)
-4. For Image Rate questions, specify:
-   - Image path (local or remote URL)
-   - Minimum and maximum response length
-5. For Slider Rating questions, specify:
-   - Left value (numeric, e.g., 1)
-   - Right value (numeric, e.g., 5)
-   - Left anchor label (e.g., "Weak")
-   - Right anchor label (e.g., "Strong")
-   - Slider text (descriptive text for the scale)
-6. Generate files
-7. Open generated_video_quiz.html
+### Question Types
 
-## Image Path Recommendations
-- **For local testing**: Use relative paths like `images/example.jpg` and place your images in a folder relative to the HTML file
-- **For online use**: Use either relative paths that match your server structure or full URLs (starting with http:// or https://)
-- **Windows paths**: While the application handles Windows paths correctly, it's better to use forward slashes and relative paths for better cross-platform compatibility
+#### Multiple Choice
+Standard multiple-choice questions with single correct answer.
 
-## Project Structure
+#### True/False
+Boolean questions with true/false responses.
 
+#### Short Answer
+Open-ended text responses with configurable length validation.
+
+#### Image Rate
+Questions displaying images with text response requirements.
+
+#### Slider Rating
+Numerical rating questions with customizable scale and labels.
+
+### Workflow
+1. Load configuration via JSON upload or create new quiz
+2. Configure video source and quiz timing
+3. Add questions using the form interface
+4. Generate quiz files
+5. Deploy generated HTML file
+
+## Student ID Management
+1. Create text file with one student ID per line
+2. Upload via "Upload Student IDs" button
+3. Leave empty to allow unrestricted access
+
+## Deployment
+
+### Local/Offline
+- Open `generated_video_quiz.html` directly in browser
+- Ensure video and image files are accessible via relative paths
+
+### Online/Server
+- Deploy HTML/JS files to web directory
+- Configure PHP backend for result submission
+- Ensure proper file permissions and directory structure
+
+## File Structure
 ```
 video-quiz/
-├── quiz_generator.js         # Main quiz generator JavaScript code
-├── quiz_generator.html       # Quiz generator interface
-├── quiz_schema.json          # JSON schema for quiz configuration
-├── video_with_quiz.css       # CSS for generated quizzes
-├── save_results.php          # PHP script for saving quiz results (online mode)
-├── quiz_processor.py         # Python script for processing quiz results
-├── quiz_file_organizer.py    # Python script for organizing quiz files
-├── video_compressor.py       # Python utility for compressing video files
-├── test_bank_creator.py      # AI-powered quiz content generator (planned)
-├── old_files/                # Archive of older versions
-├── new_quizzes/              # Directory for newly generated quizzes
-└── test bank/                # Directory for test bank files
+├── quiz_generator.html
+├── quiz_generator.js
+├── quiz_schema.json
+├── video_with_quiz.css
+├── save_results.php
+├── new_quizzes/
+└── quiz_results/
 ```
 
-## Online/Offline Compatibility
-
-The quiz generator is designed to work in both online and offline environments:
-
-- **Offline Mode**: Quizzes can be generated and used locally without a server
-- **Online Mode**: When deployed to a server, additional features like PHP-based result submission are available
-
-### Online Deployment
-1. Place quiz HTML/JS files in the appropriate web directory (e.g., public/lectures/)
-2. Ensure video files are accessible (e.g., in public/videos/)
-3. Configure the save_results.php path if using server-side result submission
-4. The save_results.php file saves quiz results to a '../quiz_results/' directory
-5. The .htaccess file restricts access to the quiz-admin directory, only allowing access to specific files
-
-# Quiz Results Processor
-
-This tool processes JSON quiz result files and converts them to a CSV format that's easier for instructors to review.
-
-## Features
-
-- Processes multiple JSON quiz result files
-- Identifies different question types (multiple choice, true/false, short answer, image rate, slider rating)
-- Exports results to CSV format
-- Works with different quiz formats
-- Graphical user interface for easier operation
-- Select multiple files or an entire folder
-- Customizable output location
-- Student ID to Course mapping functionality
-- Test bank mapping for complete question details
 
 ## Requirements
-
-- Python 3.6 or higher
-- tkinter (usually included with Python)
-
-## Usage
-
-### GUI Mode (Recommended)
-
-Run the script with GUI mode:
-
-```bash
-python quiz_processor.py --gui
-```
-
-Or from the command line:
-
-```bash
-python quiz_processor.py --input /path/to/quiz/results --output /path/to/output/directory
-```
-
-# Test Bank Creator (Planned)
-
-The Test Bank Creator is a Python tool designed to automatically generate quiz content from lecture transcripts using AI. This tool will streamline the process of creating comprehensive question banks for educational videos.
-
-## Planned Features
-
-- AI-powered question generation using Gemini API or Ollama
-- Support for multiple question types (MCQ, True/False, Short Answer, Image Rate, Slider Rating)
-- Automatic extraction of key concepts from lecture transcripts
-- JSON output compatible with the Quiz Generator
-- Customizable question difficulty levels
-- Batch processing of multiple lecture transcripts
-- GUI interface for easy operation
-
-## Technical Requirements
-
-- Python 3.8 or higher
-- Required libraries:
-  - For Gemini API: google-generativeai
-  - For Ollama: ollama-python
-  - tkinter (for GUI)
-  - pandas, numpy (for data processing)
-
-## Implementation Plan
-
-1. Create a Python script that can read lecture transcript files
-2. Implement AI integration with either Gemini API or Ollama
-3. Develop algorithms to identify key topics and generate relevant questions
-4. Format output as JSON compatible with the quiz generator
-5. Build a user-friendly GUI interface
-6. Add configuration options for customizing question generation
-
-## Usage (Planned)
-
-```bash
-python test_bank_creator.py --input /path/to/transcript.txt --output /path/to/question_bank.json
-```
-
-Or using the GUI:
-
-```bash
-python test_bank_creator.py --gui
-```
-
-# Video Compressor Utility
-
-The Video Compressor is a Python utility that helps optimize video files for web delivery. It provides a simple GUI interface to compress videos to various resolutions and bitrates, making them more suitable for online quiz integration.
-
-## Features
-
-- Simple GUI interface for video compression
-- Adjustable bitrate settings
-- Multiple resolution options (360p, 480p, 720p, 1080p)
-- Audio bitrate control
-- CRF (Constant Rate Factor) quality adjustment
-- Output format selection (MP4, MOV, AVI)
-- File size estimation before compression
-
-## Requirements
-
-- Python 3.6 or higher
-- tkinter (for GUI)
-- FFmpeg (must be installed and available in system PATH)
-
-## Usage
-
-Run the script to open the GUI interface:
-
-```bash
-python video_compressor.py
-```
-
-1. Select a video file using the "Select File" button
-2. Adjust compression settings:
-   - Bitrate (kbps)
-   - Resolution
-   - Audio bitrate
-   - CRF (quality)
-3. Select an output format (MP4, MOV, AVI)
-4. Click "Estimate" to see the approximate file size
-5. Click "Compress" to process the video
-
-# Quiz File Organizer
-
-The Quiz File Organizer is a Python utility that processes quiz result data and organizes it into a more structured format. It's primarily used by the Quiz Results Processor to transform raw quiz data into a format that's easier to analyze.
-
-## Features
-
-- Deduplicates quiz responses based on student ID, course ID, quiz ID, and question ID
-- Restructures quiz data by question type (multiple choice, true/false, short answer)
-- Calculates correct/total scores for multiple choice and true/false questions
-- Extracts short answer responses into separate columns
-- Handles test bank mapping for question identification
-- Calculates performance ratios for different question types
-- Supports course-specific scoring
-
-## Usage
-
-This utility is primarily used as a module imported by the Quiz Results Processor, but it can also be run directly:
-
-```bash
-python quiz_file_organizer.py
-```
-
-When run directly, it will process a hardcoded CSV file path (which can be modified in the script) and output a processed CSV file.
-
-# Development and Contribution
+- Modern web browser with JavaScript enabled
+- Python 3.6+ (for utilities)
+- PHP-enabled web server (for online deployment)
 
 ## Version History
-- v2.4: Added Slider Rating question type
-- v2.3: Added improved online/offline compatibility, enhanced image path handling
-- v2.2: Added Image Rate question type, improved path handling
-- v2.1: Added JSON configuration support, enhanced validation
-- v2.0: Complete rewrite with multiple question types and student ID validation
-- v1.0: Initial release with basic video quiz functionality
+- v0.4: Added Slider Rating question type
+- v0.3: Enhanced online/offline compatibility
+- v0.2.5: Added Image Rate question type
+- v0.2: JSON configuration support
+- v0.1.5: Multiple question types and validation
+- v0.1: Initial release
 
-## Future Development
-- Implementation of the Test Bank Creator tool
-- Enhanced analytics for quiz results
-- Mobile-responsive quiz interface improvements
-- Integration with learning management systems (LMS)
+## Notes
+- This application is currently under peer review
+- Never modify core template files directly
+- Test all quizzes thoroughly before deployment
+- Use relative paths for cross-platform compatibility
 
-## File Handling Notes
-- The quiz generator creates files in the `new_quizzes/` directory by default
-- Quiz results are saved to the `quiz_results/` directory when using the PHP backend
-- Student ID lists should be placed in the project root directory
-- Test bank files are stored in the `test bank/` directory
-
-## .gitignore Configuration
-The project's `.gitignore` file is configured to exclude:
-- User-specific content directories (`test bank/`, `new_quizzes/`, etc.)
-- Student ID lists (containing sensitive information)
-- Generated quiz files
-- Python bytecode and temporary files
-- OS-specific files
-
-## Important Reminders
-- Never modify the template files (`video_with_quiz.js/html/css`)
-- When deploying online, ensure proper server configuration for PHP functionality
-- For security, use the provided `.htaccess` file to restrict access to admin files
-- Always test quizzes thoroughly before distributing to students
+## License
+MIT License - See LICENSE file for details
