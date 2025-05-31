@@ -53,12 +53,12 @@ function showLoading(show) {
 
 function updateProgress() {
     if (!state.quizData) return;
-    
+
     const totalQuizzes = state.quizData.metadata.totalQuizzes;
     const completedQuizzes = state.quizResults.reduce((acc, result) => {
         return acc + (result.completed ? 1 : 0);
     }, 0);
-    
+
     const percentage = (completedQuizzes / totalQuizzes) * 100;
     progressIndicator.style.width = \`\${percentage}%\`;
     progressIndicator.setAttribute('aria-valuenow', percentage);
@@ -68,7 +68,7 @@ function updateProgress() {
 async function initializeQuiz() {
     try {
         showLoading(true);
-        
+
         // Get student ID
         let studentId = prompt('Please enter your student ID');
         if (studentId) {
@@ -83,10 +83,10 @@ async function initializeQuiz() {
             video.remove(); // Remove video element to terminate quiz
             throw new Error('Student ID required');
         }
-        
+
         // Initialize event listeners
         initEventListeners();
-        
+
         showLoading(false);
     } catch (error) {
         showError(error.message);
@@ -96,7 +96,7 @@ async function initializeQuiz() {
 
 function initEventListeners() {
     submitButton.addEventListener('click', saveResults);
-    
+
     // Handle different video source types
     if (state.quizData.metadata.videoSourceType === 'youtube') {
         // YouTube video events are handled through the YouTube API
@@ -137,9 +137,9 @@ function playVideo() {
 
 function handleVideoProgress() {
     if (!state.quizData) return;
-    
+
     const currentTime = getCurrentTime();
-    
+
     for (const schedule of state.quizData.quizSchedule) {
         const quiz = state.quizData.quizzes[schedule.quizId];
         if (currentTime >= schedule.time && !quiz.submitted) {
@@ -147,7 +147,7 @@ function handleVideoProgress() {
             return;
         }
     }
-    
+
     // Show final submit button if all quizzes completed
     if (currentTime >= state.quizData.quizSchedule[state.quizData.quizSchedule.length - 1].time) {
         const allCompleted = state.quizData.quizSchedule.every(
@@ -162,42 +162,42 @@ function handleVideoProgress() {
 function renderQuiz(quizId) {
     const quiz = state.quizData.quizzes[quizId];
     if (quiz.rendered) return;
-    
+
     state.currentQuiz = quizId;
     state.videoPaused = true;
     pauseVideo();
-    
+
     const quizElement = document.getElementById(\`quiz-\${quizId}\`);
     quizContainer.style.display = 'block';
     quizElement.style.display = 'block';
-    
+
     // Select questions based on present_items
     let questions = quiz.questions;
     if (quiz.present_items !== 'ALL' && typeof quiz.present_items === 'number') {
         questions = shuffleArray(questions).slice(0, quiz.present_items);
     }
-    
+
     // Render questions
     questions.forEach((question, index) => {
         const questionDiv = document.createElement('div');
         questionDiv.classList.add('quiz-question');
         questionDiv.setAttribute('data-question-id', question.id);
-        
+
         questionDiv.innerHTML = \`
             <p>\${question.question}</p>
             \${renderQuestionInputs(question, index, quizId)}
             <div class="feedback" role="alert"></div>
         \`;
-        
+
         quizElement.appendChild(questionDiv);
     });
-    
+
     // Add submit button
     const submitBtn = document.createElement('button');
     submitBtn.textContent = \`Submit \${quiz.title}\`;
     submitBtn.onclick = () => checkAnswers(quizId, questions);
     quizElement.appendChild(submitBtn);
-    
+
     quiz.rendered = true;
     updateProgress();
 }
@@ -215,21 +215,21 @@ function renderQuestionInputs(question, index, quizId) {
                     <label for="false-\${quizId}-\${index}">False</label>
                 </div>
             \`;
-            
+
         case 'shortAnswer':
             return \`
-                <input type="text" 
+                <input type="text"
                     name="q\${quizId}-\${index}"
                     minlength="\${question.validation?.minLength || 0}"
                     maxlength="\${question.validation?.maxLength || 10000}"
                     \${question.validation?.required ? 'required' : ''}
                 >
             \`;
-            
+
         case 'multipleChoice':
             return question.options.map((option, optIndex) => \`
                 <div class="option-container">
-                    <input type="radio" 
+                    <input type="radio"
                         id="opt\${optIndex}-\${quizId}-\${index}"
                         name="q\${quizId}-\${index}"
                         value="\${String.fromCharCode(97 + optIndex)}">
@@ -238,7 +238,67 @@ function renderQuestionInputs(question, index, quizId) {
                     </label>
                 </div>
             \`).join('');
-            
+
+        case 'imageRate':
+            // For image rate, the image path is stored in the first element of the options array
+            // Clean up the path - remove quotes and normalize slashes
+            let imagePath = question.options[0];
+
+            // Remove any surrounding quotes
+            imagePath = imagePath.replace(/^["']|["']$/g, '');
+
+            // Convert backslashes to forward slashes
+            imagePath = imagePath.replace(/\\\\/g, '/');
+
+            // Remove any escaped slashes
+            imagePath = imagePath.replace(/\\\//g, '/');
+
+            console.log('Rendering image with path:', imagePath);
+            return \`
+                <div class="image-container">
+                    <img src="\${imagePath}" alt="Question image" style="max-width: 100%; margin-bottom: 10px;">
+                </div>
+                <div class="response-container">
+                    <textarea
+                        name="q\${quizId}-\${index}"
+                        minlength="\${question.validation?.minLength || 0}"
+                        maxlength="\${question.validation?.maxLength || 10000}"
+                        \${question.validation?.required ? 'required' : ''}
+                        rows="4"
+                        style="width: 100%;"
+                        placeholder="Enter your response here..."
+                    ></textarea>
+                </div>
+            \`;
+
+        case 'sliderRating':
+            // For slider rating, we need to extract the slider parameters from the options object
+            const sliderOptions = question.options || {};
+            const leftValue = sliderOptions.leftValue || 1;
+            const rightValue = sliderOptions.rightValue || 5;
+            const leftLabel = sliderOptions.leftLabel || 'Weak';
+            const rightLabel = sliderOptions.rightLabel || 'Strong';
+            const sliderText = sliderOptions.sliderText || 'Rate on the scale below:';
+
+            return \`
+                <div class="slider-container">
+                    <p class="slider-text">\${sliderText}</p>
+                    <div class="slider-labels">
+                        <span class="slider-left-label">\${leftLabel} (\${leftValue})</span>
+                        <span class="slider-right-label">\${rightLabel} (\${rightValue})</span>
+                    </div>
+                    <input type="range"
+                        name="q\${quizId}-\${index}"
+                        min="\${leftValue}"
+                        max="\${rightValue}"
+                        value="\${Math.floor((leftValue + rightValue) / 2)}"
+                        class="slider-input"
+                        style="width: 100%;"
+                    >
+
+                </div>
+            \`;
+
         default:
             return '';
     }
@@ -248,28 +308,54 @@ function checkAnswers(quizId, questions) {
     const quiz = state.quizData.quizzes[quizId];
     let allAnswered = true;
     let score = 0;
-    
+
     questions.forEach((question, index) => {
         const questionElement = document.querySelector(\`[data-question-id="\${question.id}"]\`);
         const feedbackElement = questionElement.querySelector('.feedback');
         let answer;
-        
-        if (question.type === 'shortAnswer') {
-            const inputElement = document.querySelector(\`input[name="q\${quizId}-\${index}"]\`);
+
+        if (question.type === 'shortAnswer' || question.type === 'imageRate' || question.type === 'sliderRating') {
+            // Handle shortAnswer, imageRate, and sliderRating
+            let inputElement;
+
+            if (question.type === 'shortAnswer') {
+                inputElement = document.querySelector(\`input[name="q\${quizId}-\${index}"]\`);
+            } else if (question.type === 'imageRate') {
+                inputElement = document.querySelector(\`textarea[name="q\${quizId}-\${index}"]\`);
+            } else if (question.type === 'sliderRating') {
+                inputElement = document.querySelector(\`input[name="q\${quizId}-\${index}"]\`);
+            }
+
             answer = inputElement ? inputElement.value.trim() : '';
-            
-            if (answer && answer.length < (question.validation?.minLength || 0)) {
+
+            // Only validate min length for text inputs (shortAnswer and imageRate)
+            if ((question.type === 'shortAnswer' || question.type === 'imageRate') &&
+                answer && answer.length < (question.validation?.minLength || 0)) {
                 allAnswered = false;
                 return;
             }
-            
-            state.quizResults.push({
+
+            // Enhanced result object with comprehensive information
+            const resultObj = {
                 quizId,
                 questionId: question.id,
                 studentId: state.studentId,
                 answer,
-                points: question.points
-            });
+                points: question.points,
+                questionType: question.type,
+                // Enhanced fields for comprehensive output
+                questionText: question.question,
+                answerText: answer // For these types, answer and answerText are the same
+            };
+
+            // Add question-specific details
+            if (question.type === 'imageRate' && question.options && question.options.length > 0) {
+                resultObj.imagePath = question.options[0];
+            } else if (question.type === 'sliderRating' && question.options) {
+                resultObj.sliderOptions = question.options;
+            }
+
+            state.quizResults.push(resultObj);
         }
          else {
             const selected = document.querySelector(\`input[name="q\${quizId}-\${index}"]:checked\`);
@@ -277,49 +363,100 @@ function checkAnswers(quizId, questions) {
                 allAnswered = false;
                 return;
             }
-            
+
             answer = selected.value;
             const isCorrect = answer === question.correctAnswer;
             score += isCorrect ? question.points : 0;
-            
+
             // Show feedback
             feedbackElement.textContent = question.feedback[isCorrect ? 'correct' : 'incorrect'];
             feedbackElement.classList.add(isCorrect ? 'correct' : 'incorrect');
             feedbackElement.style.display = 'block';
-            
-            state.quizResults.push({
+
+            // Get the actual text of the selected answer for MCQs
+            let answerText = answer;
+            if (question.type === 'multipleChoice' && question.options) {
+                // Convert letter answer (a, b, c, d) to option index
+                const optionIndex = answer.charCodeAt(0) - 97; // 'a' = 0, 'b' = 1, etc.
+                if (optionIndex >= 0 && optionIndex < question.options.length) {
+                    answerText = question.options[optionIndex];
+                }
+            } else if (question.type === 'trueFalse') {
+                answerText = answer === 'true' ? 'True' : 'False';
+            }
+
+            // Enhanced result object with comprehensive information
+            const resultObj = {
                 quizId,
                 questionId: question.id,
                 studentId: state.studentId,
                 answer,
                 correct: isCorrect,
-                points: isCorrect ? question.points : 0
-            });
+                points: isCorrect ? question.points : 0,
+                questionType: question.type,
+                // Enhanced fields for comprehensive output
+                questionText: question.question,
+                answerText: answerText,
+                correctAnswer: question.correctAnswer
+            };
+
+            // Add options for multiple choice questions
+            if (question.type === 'multipleChoice' && question.options) {
+                resultObj.questionOptions = question.options;
+                // Also include the correct answer text
+                const correctIndex = question.correctAnswer.charCodeAt(0) - 97;
+                if (correctIndex >= 0 && correctIndex < question.options.length) {
+                    resultObj.correctAnswerText = question.options[correctIndex];
+                }
+            }
+
+            state.quizResults.push(resultObj);
         }
     });
-    
+
     if (!allAnswered) {
         showError('Please answer all questions');
         return;
     }
-    
+
     // Mark quiz as completed
     quiz.submitted = true;
     document.getElementById(\`quiz-\${quizId}\`).style.display = 'none';
     state.videoPaused = false;
     playVideo();
-    
+
     updateProgress();
 }
 
 function saveResults() {
     try {
+        // Extract test ID from the current script filename
+        const scripts = document.getElementsByTagName('script');
+        let testId = 'unknown_quiz';
+
+        // Look for the quiz data script (should be the last script with a .js extension)
+        for (let i = scripts.length - 1; i >= 0; i--) {
+            const src = scripts[i].src;
+            if (src && src.endsWith('.js')) {
+                // Extract filename without extension
+                const filename = src.split('/').pop().replace('.js', '');
+                testId = filename;
+                break;
+            }
+        }
+
+        // Fallback: try to get from quiz metadata if available
+        if (testId === 'unknown_quiz' && state.quizData?.metadata?.title) {
+            testId = state.quizData.metadata.title.toLowerCase().replace(/\s+/g, '_');
+        }
+
         const results = {
             studentId: state.studentId,
             timestamp: new Date().toISOString(),
+            testID: testId,
             results: state.quizResults
         };
-        
+
         const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -329,7 +466,7 @@ function saveResults() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         showError('Results saved successfully!');
     } catch (error) {
         showError('Failed to save results');
@@ -345,7 +482,7 @@ document.addEventListener('DOMContentLoaded', initializeQuiz);
 function populateFormFromJson(json) {
     // Set basic video info
     document.getElementById('videoSource').value = json.videoConfig.source;
-    
+
     // Set the correct video source type radio button
     if (json.metadata && json.metadata.videoSourceType === 'youtube') {
         document.getElementById('youtubeSource').checked = true;
@@ -353,12 +490,12 @@ function populateFormFromJson(json) {
         document.getElementById('filePathSource').checked = true;
     }
     updateSourceHelp();
-    
+
     document.getElementById('quizCount').value = json.quizSchedule.length;
-    
+
     // Create quiz sections
     document.getElementById('generateQuizFields').click();
-    
+
     // Populate each quiz from quizSchedule
     json.quizSchedule.forEach((schedule, index) => {
         const quizId = index + 1;
@@ -370,12 +507,12 @@ function populateFormFromJson(json) {
             document.getElementById(`quizDesc${quizId}`).value = quiz.description;
             document.getElementById(`presentItems${quizId}`).value = quiz.present_items;
             document.getElementById(`timeLimit${quizId}`).value = quiz.timeLimit;
-            
+
             // Create question fields
             const questionCount = quiz.questions.length;
             document.getElementById(`questionCount${quizId}`).value = questionCount;
             window.generateQuestionFields(quizId);
-            
+
             // Populate questions
             quiz.questions.forEach((question, qIndex) => {
                 document.getElementById(`qText${quizId}-${qIndex + 1}`).value = question.question;
@@ -385,15 +522,48 @@ function populateFormFromJson(json) {
                 const event = new Event('change');
                 typeSelect.dispatchEvent(event);
                 document.getElementById(`qPoints${quizId}-${qIndex + 1}`).value = question.points;
-                
+
                 if (question.type === 'multipleChoice') {
-                    document.getElementById(`qOptions${quizId}-${qIndex + 1}`).value = 
+                    document.getElementById(`qOptions${quizId}-${qIndex + 1}`).value =
                         question.options.join(',');
-                    document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value = 
+                    document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value =
                         question.correctAnswer;
                 } else if (question.type === 'trueFalse') {
-                    document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value = 
+                    document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value =
                         question.correctAnswer.toString();
+                } else if (question.type === 'imageRate') {
+                    // For image rate, the image path is stored in the first element of the options array
+                    if (question.options && question.options.length > 0) {
+                        document.getElementById(`qImagePath${quizId}-${qIndex + 1}`).value = question.options[0];
+                    }
+                    // Set min/max length if validation exists
+                    if (question.validation) {
+                        if (question.validation.minLength) {
+                            document.getElementById(`qMinLength${quizId}-${qIndex + 1}`).value = question.validation.minLength;
+                        }
+                        if (question.validation.maxLength) {
+                            document.getElementById(`qMaxLength${quizId}-${qIndex + 1}`).value = question.validation.maxLength;
+                        }
+                    }
+                } else if (question.type === 'sliderRating') {
+                    // For slider rating, the parameters are stored in the options object
+                    if (question.options) {
+                        if (question.options.leftValue !== undefined) {
+                            document.getElementById(`qSliderLeftValue${quizId}-${qIndex + 1}`).value = question.options.leftValue;
+                        }
+                        if (question.options.rightValue !== undefined) {
+                            document.getElementById(`qSliderRightValue${quizId}-${qIndex + 1}`).value = question.options.rightValue;
+                        }
+                        if (question.options.leftLabel) {
+                            document.getElementById(`qSliderLeftLabel${quizId}-${qIndex + 1}`).value = question.options.leftLabel;
+                        }
+                        if (question.options.rightLabel) {
+                            document.getElementById(`qSliderRightLabel${quizId}-${qIndex + 1}`).value = question.options.rightLabel;
+                        }
+                        if (question.options.sliderText) {
+                            document.getElementById(`qSliderText${quizId}-${qIndex + 1}`).value = question.options.sliderText;
+                        }
+                    }
                 }
             });
         }
@@ -426,7 +596,7 @@ function extractYouTubeId(url) {
 function updateSourceHelp() {
     const sourceType = getVideoSourceType();
     const helpText = document.getElementById('videoSourceHelp');
-    
+
     if (sourceType === 'youtube') {
         helpText.textContent = 'Enter a YouTube URL (e.g., https://www.youtube.com/watch?v=VIDEOID)';
     } else {
@@ -443,10 +613,11 @@ function generateFiles() {
     const videoSource = document.getElementById('videoSource').value.trim();
     const sourceType = getVideoSourceType();
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
-    
+    const outputFileNamePrefix = document.getElementById('outputFileName').value.trim() || 'generated_video_quiz'; // Get the prefix
+
     // Process video source based on type
     let processedSource, embedCode;
-    
+
     if (sourceType === 'youtube') {
         const youtubeId = extractYouTubeId(videoSource);
         if (!youtubeId) {
@@ -456,8 +627,8 @@ function generateFiles() {
         processedSource = youtubeId;
         embedCode = `<div class="youtube-container">
                         <iframe id="myVideo"
-                        src="https://www.youtube.com/embed/${youtubeId}?enablejsapi=1" 
-                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; 
+                        src="https://www.youtube.com/embed/${youtubeId}?enablejsapi=1"
+                        frameborder="0" allow="accelerometer; autoplay; clipboard-write;
                         encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
                         </iframe>
                      </div>`;
@@ -538,6 +709,53 @@ function generateFiles() {
                         required: true
                     };
                     break;
+                case 'imageRate':
+                    correctAnswer = 'true'; // Placeholder
+                    // Get image path
+                    let imagePath = document.getElementById(`qImagePath${i}-${q}`).value.trim();
+
+                    // Clean up the image path - remove quotes and normalize slashes
+                    imagePath = imagePath.replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+                    imagePath = imagePath.replace(/\\/g, '/'); // Convert backslashes to forward slashes
+
+                    // Ensure the image path is properly formatted
+                    // If it's not a URL (doesn't start with http:// or https://) and doesn't start with a slash,
+                    // we'll assume it's a relative path
+                    if (!imagePath.match(/^(https?:\/\/|\/)/)) {
+                        // It's a relative path, keep as is
+                        console.log(`Using relative image path: ${imagePath}`);
+                    }
+
+                    // Add validation object with min and max length
+                    const imgMinLength = parseInt(document.getElementById(`qMinLength${i}-${q}`).value, 10) || 2;
+                    const imgMaxLength = parseInt(document.getElementById(`qMaxLength${i}-${q}`).value, 10) || 10000;
+                    validation = {
+                        minLength: imgMinLength,
+                        maxLength: imgMaxLength,
+                        required: true
+                    };
+                    // Store image path in options array for consistency
+                    options = [imagePath];
+                    break;
+                case 'sliderRating':
+                    correctAnswer = 'true'; // Placeholder, not used for slider
+
+                    // Get slider parameters
+                    const leftValue = parseInt(document.getElementById(`qSliderLeftValue${i}-${q}`).value, 10) || 1;
+                    const rightValue = parseInt(document.getElementById(`qSliderRightValue${i}-${q}`).value, 10) || 5;
+                    const leftLabel = document.getElementById(`qSliderLeftLabel${i}-${q}`).value.trim() || 'Weak';
+                    const rightLabel = document.getElementById(`qSliderRightLabel${i}-${q}`).value.trim() || 'Strong';
+                    const sliderText = document.getElementById(`qSliderText${i}-${q}`).value.trim() || 'This is a slider scale.';
+
+                    // Store slider parameters in options object
+                    options = {
+                        leftValue: leftValue,
+                        rightValue: rightValue,
+                        leftLabel: leftLabel,
+                        rightLabel: rightLabel,
+                        sliderText: sliderText
+                    };
+                    break;
             }
 
             const questionObj = {
@@ -569,9 +787,30 @@ function generateFiles() {
     if (saveResultsViaPhp) {
         // PHP save results function
         saveResultsFunctionCode = `function saveResults() {
+            // Extract test ID from the current script filename
+            const scripts = document.getElementsByTagName('script');
+            let testId = 'unknown_quiz';
+
+            // Look for the quiz data script (should be the last script with a .js extension)
+            for (let i = scripts.length - 1; i >= 0; i--) {
+                const src = scripts[i].src;
+                if (src && src.endsWith('.js')) {
+                    // Extract filename without extension
+                    const filename = src.split('/').pop().replace('.js', '');
+                    testId = filename;
+                    break;
+                }
+            }
+
+            // Fallback: try to get from quiz metadata if available
+            if (testId === 'unknown_quiz' && state.quizData?.metadata?.title) {
+                testId = state.quizData.metadata.title.toLowerCase().replace(/\\s+/g, '_');
+            }
+
             const results = {
                 studentId: state.studentId,
                 timestamp: new Date().toISOString(),
+                testID: testId,
                 results: state.quizResults
             };
 
@@ -608,12 +847,33 @@ function generateFiles() {
         // Client-side implementation for TOGGLE=OFF
         saveResultsFunctionCode = `function saveResults() {
             try {
+                // Extract test ID from the current script filename
+                const scripts = document.getElementsByTagName('script');
+                let testId = 'unknown_quiz';
+
+                // Look for the quiz data script (should be the last script with a .js extension)
+                for (let i = scripts.length - 1; i >= 0; i--) {
+                    const src = scripts[i].src;
+                    if (src && src.endsWith('.js')) {
+                        // Extract filename without extension
+                        const filename = src.split('/').pop().replace('.js', '');
+                        testId = filename;
+                        break;
+                    }
+                }
+
+                // Fallback: try to get from quiz metadata if available
+                if (testId === 'unknown_quiz' && state.quizData?.metadata?.title) {
+                    testId = state.quizData.metadata.title.toLowerCase().replace(/\\s+/g, '_');
+                }
+
                 const results = {
                     studentId: state.studentId,
                     timestamp: new Date().toISOString(),
+                    testID: testId,
                     results: state.quizResults
                 };
-                
+
                 const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -623,7 +883,7 @@ function generateFiles() {
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                
+
                 showError('Results saved successfully!');
             } catch (error) {
                 showError('Failed to save results');
@@ -632,9 +892,39 @@ function generateFiles() {
         }`;
     }
 
+    // Process quiz data to ensure image paths are properly handled
+    // Create a deep copy of the quizzes object to avoid modifying the original
+    const processedQuizzes = JSON.parse(JSON.stringify(quizzes));
+
+    console.log('DEBUG - QUIZ GENERATION:');
+    console.log('Original quizzes object:', JSON.stringify(quizzes, null, 2));
+
+    // Process each quiz to handle image paths
+    Object.keys(processedQuizzes).forEach(quizId => {
+        const quiz = processedQuizzes[quizId];
+        if (quiz.questions) {
+            quiz.questions.forEach(question => {
+                if (question.type === 'imageRate' && question.options && question.options.length > 0) {
+                    // Log the original path
+                    console.log(`DEBUG - Processing image path for quiz ${quizId}, question ${question.id}:`);
+                    console.log(`  - Original path: ${question.options[0]}`);
+
+                    // IMPORTANT FIX: Directly modify the options array to ensure the path is correct
+                    // This ensures the path is stored correctly in the generated JS file
+                    // The backslashes in JSON.stringify will be properly handled when the JS is executed
+
+                    // No need to modify the path here, just ensure it's logged for debugging
+                    console.log(`  - Final path used: ${question.options[0]}`);
+                }
+            });
+        }
+    });
+
     // Generate final JS
+    const quizzesJson = JSON.stringify(processedQuizzes, null, 2);
+
     const generatedJs = `
-    // filepath: generated_video_quiz.js
+    // filepath: ${outputFileNamePrefix}.js
     const quizData = {
         "metadata": {
             "title": "Generated Quiz",
@@ -646,8 +936,10 @@ function generateFiles() {
             "videoSourceType": "${sourceType}" // Store the video source type
         },
         "quizSchedule": ${JSON.stringify(quizSchedule)},
-        "quizzes": ${JSON.stringify(quizzes, null, 2)}
+        "quizzes": ${quizzesJson}
     };
+
+
 
     ${sourceType === 'youtube' ? `
     // Load YouTube API
@@ -729,24 +1021,25 @@ function generateFiles() {
                 <p></p>
             </div>
         </template>
-        <script src="generated_video_quiz.js" defer></script>
+        <script src="${outputFileNamePrefix}.js" defer></script>
     </body>
     </html>
     `;
 
     // Create downloadable files
-    downloadFile('generated_video_quiz.js', generatedJs);
-    downloadFile('generated_video_quiz.html', generatedHtml);
+    downloadFile(`${outputFileNamePrefix}.js`, generatedJs);
+    downloadFile(`${outputFileNamePrefix}.html`, generatedHtml);
 }
 
 // JSON config handler
 async function handleJsonConfigUpload(event) {
     const file = event.target.files[0];
     const status = document.getElementById('jsonUploadStatus');
-    
+
     if (!file) return;
-    
+
     try {
+        // Try client-side file reading first (works offline)
         const config = JSON.parse(await file.text());
         // Clean and validate JSON structure
         if (!config.videoConfig?.source) {
@@ -761,7 +1054,7 @@ async function handleJsonConfigUpload(event) {
 
         // Clean student IDs if present
         if (config.metadata?.validStudentIds) {
-            config.metadata.validStudentIds = config.metadata.validStudentIds.map(id => 
+            config.metadata.validStudentIds = config.metadata.validStudentIds.map(id =>
                 id.replace(/[\r\n]+/g, '').trim()
             );
         }
@@ -769,10 +1062,50 @@ async function handleJsonConfigUpload(event) {
         populateFormFromJson(config);
         status.textContent = "Config loaded successfully!";
         status.style.color = 'green';
-    } catch (error) {
-        status.textContent = `Error: ${error.message}`;
-        status.style.color = 'red';
-        console.error('JSON config error:', error);
+    } catch (clientError) {
+        console.error('Client-side JSON parsing failed, trying server-side:', clientError);
+
+        // If client-side fails, try server-side (for online mode)
+        // Store the file name for potential server-side fallback
+        const fileName = file.name;
+
+        try {
+            // Try to use the server-side file handler
+            const response = await fetch(`file_access.php?action=load_json&file=${encodeURIComponent(fileName)}`);
+
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+            }
+
+            const config = await response.json();
+
+            // Validate the JSON structure
+            if (!config.videoConfig?.source) {
+                throw new Error('Missing videoConfig.source in JSON');
+            }
+            if (!Array.isArray(config.quizSchedule)) {
+                throw new Error('quizSchedule must be an array');
+            }
+            if (!config.quizzes || typeof config.quizzes !== 'object') {
+                throw new Error('Missing quizzes object in JSON');
+            }
+
+            // Clean student IDs if present
+            if (config.metadata?.validStudentIds) {
+                config.metadata.validStudentIds = config.metadata.validStudentIds.map(id =>
+                    id.replace(/[\r\n]+/g, '').trim()
+                );
+            }
+
+            populateFormFromJson(config);
+            status.textContent = "Config loaded successfully (server-side)!";
+            status.style.color = 'green';
+        } catch (serverError) {
+            console.error('Server-side JSON parsing also failed:', serverError);
+            status.textContent = `Error: ${serverError.message || 'Failed to load JSON from server'}`;
+            status.style.color = 'red';
+            console.error('JSON config error:', serverError);
+        }
     }
 }
 
@@ -780,10 +1113,10 @@ function exportJsonFile() {
     // Gather quiz data (similar to generateFiles, but only produce JSON)
     const videoSource = document.getElementById('videoSource').value.trim();
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
-    
+
     const quizSchedule = [];
     const quizzes = {};
-    
+
     for (let i = 1; i <= quizCount; i++) {
         const time = parseInt(document.getElementById(`quizTime${i}`).value, 10) || 0;
         const quizId = i;
@@ -791,7 +1124,7 @@ function exportJsonFile() {
         const description = document.getElementById(`quizDesc${i}`).value;
         const presentItems = document.getElementById(`presentItems${i}`).value;
         const timeLimit = parseInt(document.getElementById(`timeLimit${i}`).value, 10) || 180;
-        
+
         quizSchedule.push({ time, quizId, title, description });
         quizzes[i] = {
             title,
@@ -830,6 +1163,53 @@ function exportJsonFile() {
                         required: true
                     };
                     break;
+                case 'imageRate':
+                    correctAnswer = 'true'; // Placeholder
+                    // Get image path
+                    let imagePath = document.getElementById(`qImagePath${i}-${q}`).value.trim();
+
+                    // Clean up the image path - remove quotes and normalize slashes
+                    imagePath = imagePath.replace(/^["']|["']$/g, ''); // Remove surrounding quotes
+                    imagePath = imagePath.replace(/\\/g, '/'); // Convert backslashes to forward slashes
+
+                    // Ensure the image path is properly formatted
+                    // If it's not a URL (doesn't start with http:// or https://) and doesn't start with a slash,
+                    // we'll assume it's a relative path
+                    if (!imagePath.match(/^(https?:\/\/|\/)/)) {
+                        // It's a relative path, keep as is
+                        console.log(`Using relative image path: ${imagePath}`);
+                    }
+
+                    // Add validation object with min and max length
+                    const imgMinLength = parseInt(document.getElementById(`qMinLength${i}-${q}`).value, 10) || 2;
+                    const imgMaxLength = parseInt(document.getElementById(`qMaxLength${i}-${q}`).value, 10) || 10000;
+                    validation = {
+                        minLength: imgMinLength,
+                        maxLength: imgMaxLength,
+                        required: true
+                    };
+                    // Store image path in options array for consistency
+                    options = [imagePath];
+                    break;
+                case 'sliderRating':
+                    correctAnswer = 'true'; // Placeholder, not used for slider
+
+                    // Get slider parameters
+                    const sliderLeftValue = parseInt(document.getElementById(`qSliderLeftValue${i}-${q}`).value, 10) || 1;
+                    const sliderRightValue = parseInt(document.getElementById(`qSliderRightValue${i}-${q}`).value, 10) || 5;
+                    const sliderLeftLabel = document.getElementById(`qSliderLeftLabel${i}-${q}`).value.trim() || 'Weak';
+                    const sliderRightLabel = document.getElementById(`qSliderRightLabel${i}-${q}`).value.trim() || 'Strong';
+                    const sliderText = document.getElementById(`qSliderText${i}-${q}`).value.trim() || 'This is a slider scale.';
+
+                    // Store slider parameters in options object
+                    options = {
+                        leftValue: sliderLeftValue,
+                        rightValue: sliderRightValue,
+                        leftLabel: sliderLeftLabel,
+                        rightLabel: sliderRightLabel,
+                        sliderText: sliderText
+                    };
+                    break;
             }
 
             const questionObj = {
@@ -853,7 +1233,7 @@ function exportJsonFile() {
             quizzes[i].questions.push(questionObj);
         }
     }
-    
+
     const exportedJson = {
         "$schema": "./quiz_schema.json",
         "videoConfig": {
@@ -864,13 +1244,13 @@ function exportJsonFile() {
         "quizSchedule": quizSchedule,
         "quizzes": quizzes
     };
-    
+
     // Use user-defined filename or default
     let exportFileName = document.getElementById('exportFileName').value.trim();
     if (!exportFileName) {
         exportFileName = 'my_question_bank.json';
     }
-    
+
     const blob = new Blob([JSON.stringify(exportedJson, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -886,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('quizGeneratorForm');
     const quizzesContainer = document.getElementById('quizzesContainer');
     const generateQuizFieldsButton = document.getElementById('generateQuizFields');
-    
+
     // Add JSON config uploader
     const jsonUploadContainer = document.createElement('div');
     jsonUploadContainer.className = 'upload-section';
@@ -918,6 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = e.target.files[0];
         if (file) {
             try {
+                // Try client-side file reading first (works offline)
                 const text = await file.text();
                 // Split by newline or comma, clean up whitespace and remove \r\n
                 validStudentIds = text.split(/[\n,]/)
@@ -925,13 +1306,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     .filter(id => id.length > 0);
                 uploadStatus.textContent = `Loaded ${validStudentIds.length} valid IDs`;
             } catch (error) {
-                console.error('Error reading file:', error);
-                uploadStatus.textContent = 'Error reading file';
-                validStudentIds = null;
+                console.error('Client-side file reading failed, trying server-side:', error);
+
+                // If client-side fails, try server-side (for online mode)
+                // Store the file name for potential server-side fallback
+                const fileName = file.name;
+
+                try {
+                    // Try to use the server-side file handler
+                    const response = await fetch(`file_access.php?action=load_ids&file=${encodeURIComponent(fileName)}`);
+
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === 'success' && Array.isArray(data.ids)) {
+                        validStudentIds = data.ids;
+                        uploadStatus.textContent = `Loaded ${validStudentIds.length} valid IDs (server-side)`;
+                    } else {
+                        throw new Error(data.message || 'Failed to load IDs from server');
+                    }
+                } catch (serverError) {
+                    console.error('Server-side file reading also failed:', serverError);
+                    uploadStatus.textContent = 'Error reading file (both client and server-side failed)';
+                    validStudentIds = null;
+                }
             }
         }
     });
-    
+
     // Generate quiz input fields
     generateQuizFieldsButton.addEventListener('click', () => {
         const quizCount = parseInt(document.getElementById('quizCount').value);
@@ -952,17 +1357,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     <label>Description: <input type="text" id="quizDesc${i}" required></label>
                 </div>
                 <div>
-                    <label>Present Items (number or "ALL"): 
+                    <label>Present Items (number or "ALL"):
                         <input type="text" id="presentItems${i}" value="ALL" required>
                     </label>
                 </div>
                 <div>
-                    <label>Time Limit (seconds): 
+                    <label>Time Limit (seconds):
                         <input type="number" id="timeLimit${i}" value="180" required>
                     </label>
                 </div>
                 <div>
-                    <label>Number of Questions: 
+                    <label>Number of Questions:
                         <input type="number" id="questionCount${i}" min="1" required>
                     </label>
                     <button type="button" onclick="generateQuestionFields(${i})">Add Questions</button>
@@ -985,22 +1390,24 @@ document.addEventListener('DOMContentLoaded', () => {
             questionDiv.innerHTML = `
                 <h4>Question ${q}</h4>
                 <div>
-                    <label>Question Text: 
+                    <label>Question Text:
                         <input type="text" id="qText${quizId}-${q}" required>
                     </label>
                 </div>
                 <div>
-                    <label>Question Type: 
+                    <label>Question Type:
                         <select id="qType${quizId}-${q}" onchange="showTypeOptions(${quizId}, ${q})" required>
                             <option value="multipleChoice">Multiple Choice</option>
                             <option value="trueFalse">True/False</option>
                             <option value="shortAnswer">Short Answer</option>
+                            <option value="imageRate">Image Rate</option>
+                            <option value="sliderRating">Slider Rating</option>
                         </select>
                     </label>
                 </div>
                 <div id="typeOptions${quizId}-${q}"></div>
                 <div>
-                    <label>Points: 
+                    <label>Points:
                         <input type="number" id="qPoints${quizId}-${q}" value="5" required>
                     </label>
                 </div>
@@ -1014,18 +1421,18 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showTypeOptions = (quizId, questionNum) => {
         const type = document.getElementById(`qType${quizId}-${questionNum}`).value;
         const container = document.getElementById(`typeOptions${quizId}-${questionNum}`);
-        
+
         let html = '';
         switch (type) {
             case 'multipleChoice':
                 html = `
                     <div>
-                        <label>Options (comma-separated): 
+                        <label>Options (comma-separated):
                             <input type="text" id="qOptions${quizId}-${questionNum}" required>
                         </label>
                     </div>
                     <div>
-                        <label>Correct Answer (a, b, c, ...): 
+                        <label>Correct Answer (a, b, c, ...):
                             <input type="text" id="qCorrect${quizId}-${questionNum}" required>
                         </label>
                     </div>
@@ -1034,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'trueFalse':
                 html = `
                     <div>
-                        <label>Correct Answer: 
+                        <label>Correct Answer:
                             <select id="qCorrect${quizId}-${questionNum}" required>
                                 <option value="true">True</option>
                                 <option value="false">False</option>
@@ -1046,13 +1453,68 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'shortAnswer':
                 html = `
                     <div>
-                        <label>Minimum Length: 
+                        <label>Minimum Length:
                             <input type="number" id="qMinLength${quizId}-${questionNum}" value="2">
                         </label>
                     </div>
                     <div>
-                        <label>Maximum Length: 
+                        <label>Maximum Length:
                             <input type="number" id="qMaxLength${quizId}-${questionNum}" value="10000">
+                        </label>
+                    </div>
+                `;
+                break;
+            case 'imageRate':
+                html = `
+                    <div>
+                        <label>Image Path:
+                            <input type="text" id="qImagePath${quizId}-${questionNum}"
+                                placeholder="images/example.jpg or https://example.com/image.jpg" required>
+                        </label>
+                        <div class="form-help">
+                            <strong>Image Path Options:</strong><br>
+                            - Local relative path (e.g., <code>images/photo.jpg</code>)<br>
+                            - Full URL (e.g., <code>https://example.com/image.jpg</code>)<br>
+                            <em>Note: For local paths, make sure the image is accessible relative to the generated HTML file</em>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Minimum Length:
+                            <input type="number" id="qMinLength${quizId}-${questionNum}" value="2">
+                        </label>
+                    </div>
+                    <div>
+                        <label>Maximum Length:
+                            <input type="number" id="qMaxLength${quizId}-${questionNum}" value="10000">
+                        </label>
+                    </div>
+                `;
+                break;
+            case 'sliderRating':
+                html = `
+                    <div>
+                        <label>Left Value (numeric):
+                            <input type="number" id="qSliderLeftValue${quizId}-${questionNum}" value="1" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Right Value (numeric):
+                            <input type="number" id="qSliderRightValue${quizId}-${questionNum}" value="5" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Left Anchor Label:
+                            <input type="text" id="qSliderLeftLabel${quizId}-${questionNum}" value="Weak" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Right Anchor Label:
+                            <input type="text" id="qSliderRightLabel${quizId}-${questionNum}" value="Strong" required>
+                        </label>
+                    </div>
+                    <div>
+                        <label>Slider Text:
+                            <input type="text" id="qSliderText${quizId}-${questionNum}" value="This is a slider scale." required>
                         </label>
                     </div>
                 `;
@@ -1088,10 +1550,19 @@ function extractYouTubeId(url) {
 function updateSourceHelp() {
     const sourceType = getVideoSourceType();
     const helpText = document.getElementById('videoSourceHelp');
-    
+
     if (sourceType === 'youtube') {
         helpText.textContent = 'Enter a YouTube URL (e.g., https://www.youtube.com/watch?v=VIDEOID)';
     } else {
         helpText.textContent = 'Enter the path to your video file (e.g., videos/lecture.mp4)';
     }
+}
+
+/**
+ * Helper function to detect if we're running online or offline
+ * This helps determine which file loading method to use
+ */
+function isRunningOnline() {
+    // Check if we're running on a web server (http or https protocol)
+    return window.location.protocol === 'http:' || window.location.protocol === 'https:';
 }
