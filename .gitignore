@@ -7,6 +7,18 @@
 /images/
 /quiz_results/
 
+# Video directories and files
+/PS203/
+/test_quiz/
+output.mp4
+
+# Video file extensions
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -41,8 +53,13 @@ desktop.ini
 # Python data files and text files
 *.pkl
 *.pyc
-*.py
 *.txt
 *.zip
+
+# Remove Python files from exclusion (keep core scripts)
+!quiz_processor.py
+!quiz_file_organizer.py
+!video_compressor.py
+!test_bank_creator.py
 
 
