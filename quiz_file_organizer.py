@@ -31,40 +31,39 @@ def process_quiz_data(csv_file):
         true_false_responses = []
         short_answer_responses = []
         
-        # Improved TestBank detection - much more lenient
-        test_bank = 'Uncertain'
+        # Determine a single TestBank for the entire group (student_id, course_id).
+        # Assumes quiz_processor.py has populated the TestBank column consistently for the group.
+        group_test_bank = 'Uncertain' # Default
         if 'TestBank' in group.columns:
-            # Get all unique test banks except 'Uncertain'
-            valid_test_banks = [tb for tb in group['TestBank'].unique() if tb != 'Uncertain']
-            if valid_test_banks:
-                # Use the first valid test bank found (if any question has a valid test bank)
-                test_bank = valid_test_banks[0]
-        
-        # Track which questions belong to which test bank for debugging
-        test_bank_mapping = {}
+            # Get all non-NaN, non-empty string, and non-'Uncertain' test bank names
+            # Convert to string first to handle mixed types and allow .strip()
+            specific_test_banks = [
+                str(tb) for tb in group['TestBank'].dropna().unique() 
+                if str(tb).strip() and str(tb) != 'Uncertain'
+            ]
 
+            if specific_test_banks:
+                group_test_bank = specific_test_banks[0] # Use the first specific test bank found
+                if len(specific_test_banks) > 1:
+                    # Print a warning if multiple different specific test banks are found for the same group
+                    student_id_str = group.name[0] if isinstance(group.name, tuple) and len(group.name) > 0 else "Unknown Student"
+                    course_id_str = group.name[1] if isinstance(group.name, tuple) and len(group.name) > 1 else "Unknown Course"
+                    print(f"Warning: Group (Student: {student_id_str}, Course: {course_id_str}) has multiple distinct specific TestBanks: {specific_test_banks}. Using '{group_test_bank}'.")
+            # If no specific_test_banks are found, group_test_bank remains 'Uncertain'.
+            # This covers cases where all TestBank entries for the group are NaN, empty strings, or 'Uncertain'.
+        
         for _, row in group.iterrows():
             question_data = {
                 'QuizID': row['QuizID'],
                 'QuestionID': row['QuestionID'],
                 'QuestionType': row['QuestionType'],
-                'QuestionText': row['QuestionText'],
+                'QuestionText': row['QuestionText'], # Should be populated by quiz_processor
                 'Answer': row['Answer'],
-                'CorrectAnswer': row['CorrectAnswer'],
+                'CorrectAnswer': row['CorrectAnswer'], # Should be populated by quiz_processor
                 'Correct': row['Correct'],
-                'Points': row['Points']
+                'Points': row['Points'],
+                'TestBank': group_test_bank # Assign the single determined group_test_bank
             }
-            
-            # Record this question's test bank for tracking
-            if 'TestBank' in row:
-                test_bank_mapping[row['QuestionID']] = row['TestBank']
-                
-                # If this question has a non-Uncertain test bank, use it
-                if row['TestBank'] != 'Uncertain':
-                    test_bank = row['TestBank']
-            
-            # Add the determined test bank to the question data
-            question_data['TestBank'] = test_bank
 
             if row['QuestionType'] == 'multiple_choice':
                 multiple_choice_responses.append(question_data)
@@ -73,13 +72,10 @@ def process_quiz_data(csv_file):
             elif row['QuestionType'] == 'short_answer':
                 short_answer_responses.append(question_data)
 
-        # For debugging, include the test bank mapping in metadata if needed
-        # metadata = {'test_bank_mapping': test_bank_mapping}
-
         return (json.dumps(multiple_choice_responses, indent=2),
                 json.dumps(true_false_responses, indent=2),
                 json.dumps(short_answer_responses, indent=2),
-                test_bank)  # Return the determined test bank
+                group_test_bank)  # Return the single determined group_test_bank
 
     # Apply the aggregation and prepare columns for test bank
     result = df.groupby(['StudentID', 'CourseID']).apply(aggregate_quiz_data)

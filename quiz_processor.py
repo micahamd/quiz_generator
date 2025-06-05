@@ -55,7 +55,8 @@ def process_quiz_file(file_path, course_mappings=None, test_banks=None):
         with open(file_path, 'r') as file:
             data = json.load(file)
         
-        student_id = data.get('studentId', 'Unknown')
+        student_id_original_case = data.get('studentId', 'Unknown') # MODIFIED
+        student_id_for_lookup = student_id_original_case.lower() # ADDED
         timestamp = data.get('timestamp', '')
         results = data.get('results', [])
         
@@ -64,7 +65,7 @@ def process_quiz_file(file_path, course_mappings=None, test_banks=None):
         if course_mappings:
             matching_courses = []
             for course_name, student_ids in course_mappings.items():
-                if student_id in student_ids:
+                if student_id_for_lookup in student_ids: # MODIFIED
                     matching_courses.append(course_name)
             if matching_courses:
                 course_id = "/".join(matching_courses)
@@ -86,7 +87,7 @@ def process_quiz_file(file_path, course_mappings=None, test_banks=None):
             
             # Format result based on question type
             result_dict = {
-                'StudentID': student_id,
+                'StudentID': student_id_original_case, # MODIFIED
                 'CourseID': course_id,
                 'Timestamp': timestamp,
                 'QuizID': quiz_id,
@@ -99,10 +100,14 @@ def process_quiz_file(file_path, course_mappings=None, test_banks=None):
             
             # Add question details from test bank if available
             if question_details:
-                result_dict['QuestionText'] = question_details.get('question_text', '')
-                result_dict['CorrectAnswer'] = question_details.get('correct_answer', '')
-                if question_details.get('options'):
-                    result_dict['Options'] = '; '.join(question_details.get('options', []))
+                result_dict['QuestionText'] = question_details.get('question_text', 'Detail N/A') # MODIFIED
+                result_dict['CorrectAnswer'] = question_details.get('correct_answer', 'Detail N/A') # MODIFIED
+                options_list = question_details.get('options', []) # ADDED
+                result_dict['Options'] = '; '.join(options_list) if options_list else 'Detail N/A' # MODIFIED
+            else: # ADDED BLOCK
+                result_dict['QuestionText'] = 'Not Found in Test Bank'
+                result_dict['CorrectAnswer'] = 'Not Found in Test Bank'
+                result_dict['Options'] = 'Not Found in Test Bank'
             
             # Add correctness info if available
             if 'correct' in result:
@@ -411,7 +416,7 @@ class QuizProcessorGUI:
         # Read student IDs from the file
         try:
             with open(file_path, 'r') as f:
-                student_ids = [line.strip() for line in f if line.strip()]
+                student_ids = [line.strip().lower() for line in f if line.strip()] # MODIFIED
                 
             # Add to mappings
             self.course_mappings[course_name] = student_ids
