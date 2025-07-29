@@ -308,6 +308,11 @@ function checkAnswers(quizId, questions) {
     const quiz = state.quizData.quizzes[quizId];
     let allAnswered = true;
     let score = 0;
+    let unattemptedQuestions = []; // Track unattempted questions for specific error messaging
+
+    // Check if responses are mandated (default to true for backward compatibility)
+    const responsesMandatedElement = document.getElementById('responsesMandatedSetting');
+    const responsesMandated = responsesMandatedElement ? responsesMandatedElement.value === 'true' : true;
 
     questions.forEach((question, index) => {
         const questionElement = document.querySelector(\`[data-question-id="\${question.id}"]\`);
@@ -328,11 +333,22 @@ function checkAnswers(quizId, questions) {
 
             answer = inputElement ? inputElement.value.trim() : '';
 
-            // Only validate min length for text inputs (shortAnswer and imageRate)
-            if ((question.type === 'shortAnswer' || question.type === 'imageRate') &&
-                answer && answer.length < (question.validation?.minLength || 0)) {
-                allAnswered = false;
-                return;
+            // Check if responses are mandated and validate accordingly
+            if (responsesMandated) {
+                // For text inputs (shortAnswer and imageRate), check minimum length requirement
+                if (question.type === 'shortAnswer' || question.type === 'imageRate') {
+                    const minLength = question.validation?.minLength || 0;
+                    if (!answer || answer.length < minLength) {
+                        allAnswered = false;
+                        unattemptedQuestions.push(question.id);
+                        return;
+                    }
+                }
+                // For slider rating, just check if it has been interacted with (default value check)
+                else if (question.type === 'sliderRating') {
+                    // Slider always has a value, so we consider it answered
+                    // Could add more sophisticated logic here if needed
+                }
             }
 
             // Enhanced result object with comprehensive information
@@ -359,8 +375,16 @@ function checkAnswers(quizId, questions) {
         }
          else {
             const selected = document.querySelector(\`input[name="q\${quizId}-\${index}"]:checked\`);
-            if (!selected) {
+
+            // Check if responses are mandated and question is unanswered
+            if (responsesMandated && !selected) {
                 allAnswered = false;
+                unattemptedQuestions.push(question.id);
+                return;
+            }
+
+            // If responses are not mandated and no answer selected, skip scoring but continue
+            if (!selected) {
                 return;
             }
 
@@ -368,10 +392,7 @@ function checkAnswers(quizId, questions) {
             const isCorrect = answer === question.correctAnswer;
             score += isCorrect ? question.points : 0;
 
-            // Show feedback
-            feedbackElement.textContent = question.feedback[isCorrect ? 'correct' : 'incorrect'];
-            feedbackElement.classList.add(isCorrect ? 'correct' : 'incorrect');
-            feedbackElement.style.display = 'block';
+            // Remove individual feedback display - no longer showing individual MCQ/TF feedback
 
             // Get the actual text of the selected answer for MCQs
             let answerText = answer;
@@ -415,7 +436,11 @@ function checkAnswers(quizId, questions) {
     });
 
     if (!allAnswered) {
-        showError('Please answer all questions');
+        // Show specific error message with unattempted question IDs
+        const errorMessage = unattemptedQuestions.length > 0
+            ? \`Item(s) \${unattemptedQuestions.join(', ')} not attempted\`
+            : 'Please answer all questions';
+        showError(errorMessage);
         return;
     }
 
@@ -490,6 +515,12 @@ function populateFormFromJson(json) {
         document.getElementById('filePathSource').checked = true;
     }
     updateSourceHelp();
+
+    // Set responses mandated setting (default to true for backward compatibility)
+    const responsesMandatedCheckbox = document.getElementById('responsesMandated');
+    if (responsesMandatedCheckbox) {
+        responsesMandatedCheckbox.checked = json.responsesMandated !== undefined ? json.responsesMandated : true;
+    }
 
     document.getElementById('quizCount').value = json.quizSchedule.length;
 
@@ -614,6 +645,7 @@ function generateFiles() {
     const sourceType = getVideoSourceType();
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
     const outputFileNamePrefix = document.getElementById('outputFileName').value.trim() || 'generated_video_quiz'; // Get the prefix
+    const responsesMandated = document.getElementById('responsesMandated').checked;
 
     // Process video source based on type
     let processedSource, embedCode;
@@ -1007,6 +1039,9 @@ function generateFiles() {
                     Submit Final Results
                 </button>
             </section>
+
+            <!-- Configuration Settings -->
+            <input type="hidden" id="responsesMandatedSetting" value="${responsesMandated}">
         </main>
 
         <!-- Templates -->
@@ -1113,6 +1148,7 @@ function exportJsonFile() {
     // Gather quiz data (similar to generateFiles, but only produce JSON)
     const videoSource = document.getElementById('videoSource').value.trim();
     const quizCount = parseInt(document.getElementById('quizCount').value, 10) || 0;
+    const responsesMandated = document.getElementById('responsesMandated').checked;
 
     const quizSchedule = [];
     const quizzes = {};
@@ -1241,6 +1277,7 @@ function exportJsonFile() {
             "startOffset": 0,
             "endPadding": 5
         },
+        "responsesMandated": responsesMandated,
         "quizSchedule": quizSchedule,
         "quizzes": quizzes
     };
