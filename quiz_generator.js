@@ -202,8 +202,56 @@ function renderQuiz(quizId) {
     updateProgress();
 }
 
+// Simple markdown parser for Instructions content
+function parseMarkdown(text) {
+    if (!text) return '';
+
+    return text
+        // Headers
+        .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+        // Bold and Italic
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+        // Unordered lists
+        .replace(/^- (.*$)/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        // Ordered lists
+        .replace(/^\d+\. (.*$)/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, function(match) {
+            // Only convert to <ol> if it's not already wrapped in <ul>
+            return match.includes('<ul>') ? match : '<ol>' + match + '</ol>';
+        })
+        // Line breaks and paragraphs
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^(.*)$/gm, function(match) {
+            // Don't wrap headers, lists, or already wrapped content
+            if (match.match(/^<[h1-6]|^<[uo]l|^<li|^<\/[uo]l/)) {
+                return match;
+            }
+            return match.trim() ? '<p>' + match + '</p>' : '';
+        })
+        // Clean up extra paragraph tags
+        .replace(/<p><\/p>/g, '')
+        .replace(/<p>(<[h1-6])/g, '$1')
+        .replace(/(<\/[h1-6]>)<\/p>/g, '$1');
+}
+
 function renderQuestionInputs(question, index, quizId) {
     switch (question.type) {
+        case 'instructions':
+            const content = question.content || question.question || '';
+            const parsedContent = parseMarkdown(content);
+            return \`
+                <div class="instructions-content" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 10px 0; line-height: 1.6;">
+                    \${parsedContent}
+                </div>
+            \`;
+
+        case 'trueFalse':
         case 'trueFalse':
             return \`
                 <div class="option-container">
@@ -319,7 +367,11 @@ function checkAnswers(quizId, questions) {
         const feedbackElement = questionElement.querySelector('.feedback');
         let answer;
 
-        if (question.type === 'shortAnswer' || question.type === 'imageRate' || question.type === 'sliderRating') {
+        if (question.type === 'instructions') {
+            // Instructions don't require any input - always considered complete
+            // No scoring, no validation needed
+            return;
+        } else if (question.type === 'shortAnswer' || question.type === 'imageRate' || question.type === 'sliderRating') {
             // Handle shortAnswer, imageRate, and sliderRating
             let inputElement;
 
@@ -554,7 +606,11 @@ function populateFormFromJson(json) {
                 typeSelect.dispatchEvent(event);
                 document.getElementById(`qPoints${quizId}-${qIndex + 1}`).value = question.points;
 
-                if (question.type === 'multipleChoice') {
+                if (question.type === 'instructions') {
+                    // For instructions, populate the content field
+                    const content = question.content || question.options?.content || '';
+                    document.getElementById(`qContent${quizId}-${qIndex + 1}`).value = content;
+                } else if (question.type === 'multipleChoice') {
                     document.getElementById(`qOptions${quizId}-${qIndex + 1}`).value =
                         question.options.join(',');
                     document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value =
@@ -723,6 +779,12 @@ function generateFiles() {
             let validation = null;
 
             switch (questionType) {
+                case 'instructions':
+                    const content = document.getElementById(`qContent${i}-${q}`).value;
+                    correctAnswer = 'N/A'; // Instructions don't have correct answers
+                    points = 0; // Instructions don't contribute to scoring
+                    options = { content: content }; // Store content in options for consistency
+                    break;
                 case 'multipleChoice':
                     options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
                     correctAnswer = document.getElementById(`qCorrect${i}-${q}`).value;
@@ -802,6 +864,13 @@ function generateFiles() {
                     incorrect: "Incorrect."
                 }
             };
+
+            // For instructions type, add content property and modify structure
+            if (questionType === 'instructions') {
+                questionObj.content = options.content;
+                // Remove unnecessary properties for instructions
+                delete questionObj.feedback;
+            }
 
             // Add validation object if it exists
             if (validation) {
@@ -1181,6 +1250,12 @@ function exportJsonFile() {
             let validation = null;
 
             switch (questionType) {
+                case 'instructions':
+                    const content = document.getElementById(`qContent${i}-${q}`).value;
+                    correctAnswer = 'N/A'; // Instructions don't have correct answers
+                    points = 0; // Instructions don't contribute to scoring
+                    options = { content: content }; // Store content in options for consistency
+                    break;
                 case 'multipleChoice':
                     options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
                     correctAnswer = document.getElementById(`qCorrect${i}-${q}`).value;
@@ -1260,6 +1335,13 @@ function exportJsonFile() {
                     incorrect: "Incorrect."
                 }
             };
+
+            // For instructions type, add content property and modify structure
+            if (questionType === 'instructions') {
+                questionObj.content = options.content;
+                // Remove unnecessary properties for instructions
+                delete questionObj.feedback;
+            }
 
             // Add validation object if it exists
             if (validation) {
@@ -1434,6 +1516,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div>
                     <label>Question Type:
                         <select id="qType${quizId}-${q}" onchange="showTypeOptions(${quizId}, ${q})" required>
+                            <option value="instructions">Instructions</option>
                             <option value="multipleChoice">Multiple Choice</option>
                             <option value="trueFalse">True/False</option>
                             <option value="shortAnswer">Short Answer</option>
@@ -1461,6 +1544,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let html = '';
         switch (type) {
+            case 'instructions':
+                html = `
+                    <div>
+                        <label>Instructions Content (Markdown supported):
+                            <textarea
+                                id="qContent${quizId}-${questionNum}"
+                                rows="6"
+                                style="width: 100%; resize: vertical; min-height: 120px;"
+                                placeholder="Enter instructions using markdown formatting:&#10;&#10;# Main Header&#10;## Sub Header&#10;**Bold text**&#10;*Italic text*&#10;- List item&#10;1. Numbered item&#10;[Link text](URL)"
+                                required>
+                            </textarea>
+                        </label>
+                        <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                            💡 Tip: Use markdown for formatting. The textarea will expand as you type.
+                        </div>
+                    </div>
+                `;
+                break;
             case 'multipleChoice':
                 html = `
                     <div>
