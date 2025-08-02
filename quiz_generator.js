@@ -205,7 +205,7 @@ function renderQuiz(quizId) {
 function renderQuestionInputs(question, index, quizId) {
     switch (question.type) {
         case 'instructions':
-            const content = question.content || question.question || '';
+            const content = question.options?.content || question.content || question.question || '';
             return \`
                 <div class="instructions-content" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 10px 0; line-height: 1.6;">
                     \${content}
@@ -735,7 +735,7 @@ function generateFiles() {
         for (let q = 1; q <= questionCount; q++) {
             const questionText = document.getElementById(`qText${i}-${q}`).value;
             const questionType = document.getElementById(`qType${i}-${q}`).value;
-            const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
+            let points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
             let correctAnswer = '';
             let options = [];
             let validation = null;
@@ -1199,7 +1199,7 @@ function exportJsonFile() {
         for (let q = 1; q <= questionCount; q++) {
             const questionText = document.getElementById(`qText${i}-${q}`).value;
             const questionType = document.getElementById(`qType${i}-${q}`).value;
-            const points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
+            let points = parseInt(document.getElementById(`qPoints${i}-${q}`).value, 10) || 5;
             let correctAnswer = '';
             let options = [];
             let validation = null;
