@@ -54,6 +54,14 @@
                 "oneOf": [
                   {
                     "properties": {
+                      "type": {"const": "instructions"},
+                      "content": {"type": "string", "description": "HTML content for instructions"},
+                      "points": {"const": 0},
+                      "correctAnswer": {"const": "N/A"}
+                    }
+                  },
+                  {
+                    "properties": {
                       "type": {"const": "multipleChoice"},
                       "options": {"type": "array"},
                       "correctAnswer": {"type": "string"}

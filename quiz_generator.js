@@ -204,6 +204,14 @@ function renderQuiz(quizId) {
 
 function renderQuestionInputs(question, index, quizId) {
     switch (question.type) {
+        case 'instructions':
+            const content = question.content || question.question || '';
+            return \`
+                <div class="instructions-content" style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin: 10px 0; line-height: 1.6;">
+                    \${content}
+                </div>
+            \`;
+
         case 'trueFalse':
             return \`
                 <div class="option-container">
@@ -318,6 +326,12 @@ function checkAnswers(quizId, questions) {
         const questionElement = document.querySelector(\`[data-question-id="\${question.id}"]\`);
         const feedbackElement = questionElement.querySelector('.feedback');
         let answer;
+
+        if (question.type === 'instructions') {
+            // Instructions don't require any input - always considered complete
+            // No scoring, no validation needed
+            return;
+        }
 
         if (question.type === 'shortAnswer' || question.type === 'imageRate' || question.type === 'sliderRating') {
             // Handle shortAnswer, imageRate, and sliderRating
@@ -554,7 +568,11 @@ function populateFormFromJson(json) {
                 typeSelect.dispatchEvent(event);
                 document.getElementById(`qPoints${quizId}-${qIndex + 1}`).value = question.points;
 
-                if (question.type === 'multipleChoice') {
+                if (question.type === 'instructions') {
+                    // For instructions, populate the content field
+                    const content = question.content || question.options?.content || '';
+                    document.getElementById(`qContent${quizId}-${qIndex + 1}`).value = content;
+                } else if (question.type === 'multipleChoice') {
                     document.getElementById(`qOptions${quizId}-${qIndex + 1}`).value =
                         question.options.join(',');
                     document.getElementById(`qCorrect${quizId}-${qIndex + 1}`).value =
@@ -723,6 +741,12 @@ function generateFiles() {
             let validation = null;
 
             switch (questionType) {
+                case 'instructions':
+                    const content = document.getElementById(`qContent${i}-${q}`).value;
+                    correctAnswer = 'N/A'; // Instructions don't have correct answers
+                    points = 0; // Instructions don't contribute to scoring
+                    options = { content: content }; // Store content in options for consistency
+                    break;
                 case 'multipleChoice':
                     options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
                     correctAnswer = document.getElementById(`qCorrect${i}-${q}`).value;
@@ -1181,6 +1205,12 @@ function exportJsonFile() {
             let validation = null;
 
             switch (questionType) {
+                case 'instructions':
+                    const content = document.getElementById(`qContent${i}-${q}`).value;
+                    correctAnswer = 'N/A'; // Instructions don't have correct answers
+                    points = 0; // Instructions don't contribute to scoring
+                    options = { content: content }; // Store content in options for consistency
+                    break;
                 case 'multipleChoice':
                     options = document.getElementById(`qOptions${i}-${q}`).value.split(',');
                     correctAnswer = document.getElementById(`qCorrect${i}-${q}`).value;
@@ -1434,6 +1464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div>
                     <label>Question Type:
                         <select id="qType${quizId}-${q}" onchange="showTypeOptions(${quizId}, ${q})" required>
+                            <option value="instructions">Instructions</option>
                             <option value="multipleChoice">Multiple Choice</option>
                             <option value="trueFalse">True/False</option>
                             <option value="shortAnswer">Short Answer</option>
@@ -1461,6 +1492,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let html = '';
         switch (type) {
+            case 'instructions':
+                html = `
+                    <div>
+                        <label>Instructions Content (HTML):
+                            <textarea
+                                id="qContent${quizId}-${questionNum}"
+                                rows="6"
+                                style="width: 100%; resize: vertical; min-height: 120px;"
+                                placeholder="Enter HTML content for instructions..."
+                                required>
+                            </textarea>
+                        </label>
+                        <button type="button" id="htmlHelpBtn${quizId}-${questionNum}" onclick="toggleHtmlHelp(${quizId}, ${questionNum})" style="margin-top: 5px; padding: 5px 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+                            📖 Show HTML Examples
+                        </button>
+                        <div id="htmlHelp${quizId}-${questionNum}" class="html-help" style="display: none; margin-top: 10px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em;">
+                            <h4 style="margin-top: 0;">HTML Examples:</h4>
+                            <p><strong>Bold text:</strong> <code>&lt;strong&gt;Important&lt;/strong&gt;</code></p>
+                            <p><strong>Italic text:</strong> <code>&lt;em&gt;emphasis&lt;/em&gt;</code></p>
+                            <p><strong>Headers:</strong> <code>&lt;h2&gt;Section Title&lt;/h2&gt;</code></p>
+                            <p><strong>Line break:</strong> <code>&lt;br&gt;</code></p>
+                            <p><strong>Paragraph:</strong> <code>&lt;p&gt;Your text here&lt;/p&gt;</code></p>
+                            <p><strong>Unordered list:</strong></p>
+                            <pre>&lt;ul&gt;
+  &lt;li&gt;First item&lt;/li&gt;
+  &lt;li&gt;Second item&lt;/li&gt;
+&lt;/ul&gt;</pre>
+                            <p><strong>Ordered list:</strong></p>
+                            <pre>&lt;ol&gt;
+  &lt;li&gt;Step one&lt;/li&gt;
+  &lt;li&gt;Step two&lt;/li&gt;
+&lt;/ol&gt;</pre>
+                            <p><strong>Link:</strong> <code>&lt;a href="https://example.com" target="_blank"&gt;Link text&lt;/a&gt;</code></p>
+                            <p><strong>Image:</strong> <code>&lt;img src="images/photo.jpg" alt="Description" style="max-width: 100%;"&gt;</code></p>
+                        </div>
+                    </div>
+                `;
+                break;
             case 'multipleChoice':
                 html = `
                     <div>
@@ -1573,6 +1642,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filePathSource').addEventListener('change', updateSourceHelp);
     document.getElementById('youtubeSource').addEventListener('change', updateSourceHelp);
 });
+
+// Function to toggle HTML help section for Instructions
+function toggleHtmlHelp(quizId, questionNum) {
+    const helpDiv = document.getElementById(`htmlHelp${quizId}-${questionNum}`);
+    const buttonId = `htmlHelpBtn${quizId}-${questionNum}`;
+    const button = document.getElementById(buttonId);
+
+    if (helpDiv.style.display === 'none') {
+        helpDiv.style.display = 'block';
+        button.textContent = '📖 Hide HTML Examples';
+    } else {
+        helpDiv.style.display = 'none';
+        button.textContent = '📖 Show HTML Examples';
+    }
+}
 
 function getVideoSourceType() {
     return document.querySelector('input[name="videoSourceType"]:checked').value;
