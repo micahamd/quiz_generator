@@ -7,6 +7,7 @@ A comprehensive web-based tool for creating interactive video quizzes with multi
 - JSON configuration import/export
 - Student ID validation (optional)
 - Multiple question types: Multiple Choice, True/False, Short Answer, Image Ratings, Slider Ratings
+- HTML-formatted instruction components for rich content display
 - Automatic quiz timing synchronization
 - Progress tracking and accessible UI
 - Cross-platform compatibility (online/offline)
@@ -57,6 +58,11 @@ Create or upload a JSON configuration file following this structure:
             "correct": "Correct response",
             "incorrect": "Incorrect response"
           }
+        },
+        {
+          "id": "1.2",
+          "type": "instruction",
+          "content": "<h3>Study Instructions</h3><p>Please review the following diagram carefully before proceeding:</p><img src='diagram.png' alt='Study diagram' style='max-width: 100%; height: auto;'><ul><li>Note the highlighted sections</li><li>Pay attention to the relationships shown</li></ul>"
         }
       ]
     }
@@ -80,6 +86,28 @@ Questions displaying images with text response requirements.
 
 #### Slider Rating
 Numerical rating questions with customizable scale and labels.
+
+#### Instruction Component
+Display-only components for presenting HTML-formatted content including:
+- Rich text with headers, paragraphs, and styling
+- Images with custom styling and positioning
+- Lists (ordered and unordered)
+- Links and other HTML elements
+- Custom CSS styling within the content
+
+**Instruction Component Properties:**
+- `type`: Must be set to `"instruction"`
+- `content`: HTML string containing the formatted content to display
+- No user interaction required - automatically advances
+
+**Example:**
+```json
+{
+  "id": "inst1",
+  "type": "instruction", 
+  "content": "<h3>Welcome</h3><p>This quiz will test your knowledge. Please read each question carefully.</p><img src='welcome.png' alt='Welcome image' style='width: 300px;'>"
+}
+```
 
 ### Workflow
 1. Load configuration via JSON upload or create new quiz
