@@ -23,8 +23,13 @@ const errorTemplate = document.getElementById('error-template');
 const feedbackTemplate = document.getElementById('feedback-template');
 
 // Utility Functions
-function validateStudentId(id, validIds) {
-    if (!validIds) return true; // If no IDs loaded, accept any input
+function validateStudentId(id, validIds, anyIdAllowed = false) {
+    // If "Any ID?" is enabled, validate alphanumeric 2-12 characters
+    if (anyIdAllowed) {
+        return /^[a-zA-Z0-9]{2,12}$/.test(id);
+    }
+    // Original behavior: if no IDs loaded, accept any input, otherwise check against list
+    if (!validIds) return true;
     return validIds.includes(id);
 }
 
@@ -72,7 +77,7 @@ async function initializeQuiz() {
         // Get student ID
         let studentId = prompt('Please enter your student ID');
         if (studentId) {
-            if (!validateStudentId(studentId, state.quizData.metadata.validStudentIds)) {
+            if (!validateStudentId(studentId, state.quizData.metadata.validStudentIds, state.quizData.metadata.anyIdAllowed)) {
                 showError('ID not recognized');
                 video.remove(); // Remove video element to terminate quiz
                 throw new Error('Invalid student ID');
@@ -536,6 +541,12 @@ function populateFormFromJson(json) {
         responsesMandatedCheckbox.checked = json.responsesMandated !== undefined ? json.responsesMandated : true;
     }
 
+    // Set anyIdAllowed setting (default to false for backward compatibility)
+    const anyIdAllowedCheckbox = document.getElementById('anyIdAllowed');
+    if (anyIdAllowedCheckbox) {
+        anyIdAllowedCheckbox.checked = json.metadata?.anyIdAllowed || false;
+    }
+
     document.getElementById('quizCount').value = json.quizSchedule.length;
 
     // Create quiz sections
@@ -988,6 +999,7 @@ function generateFiles() {
             "version": "1.0.0",
             "totalQuizzes": ${quizCount},
             "validStudentIds": ${validStudentIds ? JSON.stringify(validStudentIds.map(id => id.replace(/[\r\n]+/g, '').trim())) : null},
+            "anyIdAllowed": ${document.getElementById('anyIdAllowed')?.checked || false},
             "passingScore": 70,
             "videoSourceType": "${sourceType}" // Store the video source type
         },
